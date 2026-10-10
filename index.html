@@ -450,4 +450,31 @@
       values[row] = inp.value;
       
       if (inp.id === 'visitorNameInput' || row === "3") {
-        if (inp.value && inp.value.trim()
+        if (inp.value && inp.value.trim() !== '') {
+          visitorName = inp.value.trim();
+        }
+      }
+    });
+
+    try {
+      const res = await apiCall('saveVisitorData', {
+        colIndex: currentVisitorCol,
+        visitorName: visitorName,
+        values: values
+      });
+      
+      displayMessage(res.message, "success");
+      setButtonsState(false, "Retrieve / Save / Update Measurements");
+      
+      currentVisitorCol = res.colIndex;
+      await loadVisitorDropdown(res.colIndex);
+      const updatedData = await apiCall('getVisitorData', { colIndex: res.colIndex });
+      updateBadges(updatedData);
+    } catch (err) {
+      displayMessage(err.message, "error");
+      setButtonsState(false, "Retrieve / Save / Update Measurements");
+    }
+  });
+</script>
+</body>
+</html>
