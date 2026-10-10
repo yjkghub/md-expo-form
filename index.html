@@ -8,13 +8,13 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
       background-color: #f8f9fa;
       color: #333;
     }
     
-    /* TOP BRANDING & LOGO SECTION (LOGO ON TOP RIGHT) */
+    /* TOP BRANDING & LOGO SECTION (CENTER-JUSTIFIED WITH LOGO ON TOP RIGHT) */
     .top-brand-header {
       display: flex;
       justify-content: space-between;
@@ -26,7 +26,8 @@
       margin-bottom: 20px;
     }
     .brand-text-area {
-      text-align: left;
+      text-align: center;
+      flex: 1;
     }
     .brand-korean {
       font-size: 11pt;
@@ -45,6 +46,7 @@
     .brand-logo-img {
       max-height: 55px;
       width: auto;
+      margin-left: 15px;
     }
     
     .main-heading {
@@ -111,7 +113,7 @@
     .btn-print:hover { background-color: #2f855a; }
     button:disabled { background-color: #a0aec0 !important; cursor: not-allowed; }
 
-    /* BOOTH SECTIONS & 2-COLUMN GRID */
+    /* SINGLE COLUMN SCREEN VIEW */
     #metrics-container {
       display: flex;
       flex-direction: column;
@@ -135,9 +137,9 @@
       padding-bottom: 8px;
     }
     .booth-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
     
     /* FORM CARD & RECORDED BADGE */
@@ -153,13 +155,13 @@
     }
     .form-group label {
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
       color: #2d3748;
     }
     .recorded-badge {
       background-color: #c6f6d5;
       color: #22543d;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: bold;
       padding: 2px 6px;
       border-radius: 10px;
@@ -170,7 +172,7 @@
       padding: 10px;
       border: 1px solid #cbd5e0;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 15px;
       box-sizing: border-box;
       background: #f7fafc;
     }
@@ -258,6 +260,7 @@
         margin-bottom: 4px;
         margin-top: 4px;
       }
+      /* TWO-COLUMN GRID FOR PRINT */
       .booth-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -304,25 +307,25 @@
 </head>
 <body>
 
-  <!-- TOP BRANDING HEADER WITH LOGO ON TOP RIGHT -->
+  <!-- TOP BRANDING HEADER (CENTERED TEXT WITH LOGO ON TOP RIGHT) -->
   <div class="top-brand-header no-print">
     <div class="brand-text-area">
       <div class="brand-korean">백투에덴 건강 동우회</div>
       <div class="brand-english">BACK-TO-EDEN WELLNESS CLUB</div>
       <div class="brand-sub">Results Provided by Back-To-Eden Wellness Club | b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
-    <img src="logo.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
   </div>
 
   <h2 class="main-heading">MD Expo 2026 Entry Form</h2>
 
-  <!-- PRINT ONLY HEADER WITH LOGO ON TOP RIGHT -->
+  <!-- PRINT ONLY HEADER -->
   <div class="print-only print-header">
     <div>
       <div class="print-title">MD Expo 2026 Health Data</div>
       <div class="print-timestamp" id="print-date"></div>
     </div>
-    <img src="logo.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
   </div>
 
   <!-- CONTROL PANEL WITH SEARCH, DROPDOWN, & COLORED BUTTONS -->
