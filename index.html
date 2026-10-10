@@ -8,14 +8,14 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background-color: #f4f6f8; color: #333; }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
     
-    /* Branding Header (Screen Only) */
+    /* Screen Header */
     .brand-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
     .brand-logo { max-height: 65px; width: auto; display: block; margin: 0 auto 6px auto; }
     .brand-title { font-size: 14px; font-weight: bold; color: #174ea6; margin-bottom: 2px; }
     .brand-contact { font-size: 12px; color: #555; }
 
-    /* Print Elements (Hidden on Screen) */
-    .print-footer { display: none; }
+    /* Print Specific Elements (Hidden on Screen) */
+    .print-header { display: none; }
     .print-main-title { display: none; }
     .print-timestamp { display: none; }
 
@@ -64,43 +64,59 @@
     .loading { text-align: center; padding: 30px; color: #666; font-size: 15px; }
 
     /* ========================================================= */
-    /* TWO-COLUMN SENIOR-FRIENDLY 1-PAGE PRINT STYLES            */
+    /* ULTRA-SPACE-SAVING 1-PAGE PRINT STYLES                    */
     /* ========================================================= */
     @media print {
-      @page { size: portrait; margin: 5mm; }
+      @page { size: portrait; margin: 4mm; }
       body { background: white !important; padding: 0 !important; color: #000 !important; font-size: 11px !important; }
       .card { box-shadow: none !important; padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
       
-      /* Hide Non-Essential UI Elements & Top Header */
+      /* Hide Non-Essential Screen Elements */
       #lockScreen, .visitor-selector-box, .btn-container, .status-badge, .msg-box, .loading, .brand-header, .screen-main-title { display: none !important; }
       
-      /* Title & Timestamp on Print */
-      .print-main-title { display: block !important; text-align: center; font-size: 18px !important; font-weight: bold; color: #1a73e8; margin-bottom: 2px; }
-      .print-timestamp { display: block !important; text-align: center; font-size: 11px !important; color: #555 !important; margin-bottom: 6px; border-bottom: 1.5px solid #1a73e8; padding-bottom: 4px; }
+      /* Compact Split Header: Left Text / Right Logo */
+      .print-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1.5px solid #1a73e8;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+      }
+      .print-header-left { text-align: left; }
+      .print-header-left .print-title { font-size: 15px; font-weight: bold; color: #1a73e8; margin-bottom: 2px; }
+      .print-header-left .brand-sub { font-size: 11px; font-weight: bold; color: #174ea6; }
+      .print-header-left .brand-contact { font-size: 9.5px; color: #444; }
+      .print-header-left .print-timestamp { font-size: 9px; color: #666; margin-top: 2px; }
 
-      /* FORCED 2-COLUMN GRID LAYOUT FOR PRINT */
+      .print-header-right img {
+        max-height: 55px;
+        width: auto;
+        display: block;
+      }
+
+      /* Forced 2-Column Grid Layout */
       #dynamicFields { 
         display: grid !important; 
         grid-template-columns: 1fr 1fr !important; 
-        gap: 2px 14px !important; 
+        gap: 1px 12px !important; 
       }
       
-      /* Section headers span across both columns */
       .section-title { 
         grid-column: 1 / -1 !important; 
-        font-size: 13px !important; 
-        margin-top: 6px !important; 
-        margin-bottom: 2px !important; 
+        font-size: 11.5px !important; 
+        margin-top: 4px !important; 
+        margin-bottom: 1px !important; 
         background: #f0f0f0 !important; 
-        padding: 2px 6px !important; 
+        padding: 1px 4px !important; 
         border-bottom: 1px solid #ccc !important;
         font-weight: bold !important;
         color: #000 !important;
       }
       
       .form-group { 
-        margin-bottom: 2px !important; 
-        padding: 2px 4px !important; 
+        margin-bottom: 1px !important; 
+        padding: 1px 3px !important; 
         background: transparent !important; 
         border-bottom: 1px dotted #ccc !important;
         display: flex !important;
@@ -108,37 +124,20 @@
         align-items: center !important;
       }
       
-      label { font-size: 11px !important; margin-bottom: 0 !important; font-weight: bold !important; flex: 1; color: #111 !important; }
-      .device-tag { font-size: 9.5px !important; color: #555 !important; font-weight: normal !important; }
+      label { font-size: 10.5px !important; margin-bottom: 0 !important; font-weight: bold !important; flex: 1; color: #111 !important; }
+      .device-tag { font-size: 9px !important; color: #555 !important; font-weight: normal !important; }
       
       /* Format Text Inputs as Printed Values */
       input[type="text"] {
         border: none !important;
         background: transparent !important;
         font-weight: bold !important;
-        font-size: 12px !important;
+        font-size: 11.5px !important;
         color: #000 !important;
         text-align: right !important;
         padding: 0 !important;
         width: auto !important;
       }
-
-      /* Centered Large Logo & Footer Styling */
-      .print-footer {
-        display: block !important;
-        text-align: center;
-        margin-top: 10px;
-        padding-top: 6px;
-        border-top: 1.5px solid #ccc;
-      }
-      .print-footer img {
-        max-height: 80px;
-        width: auto;
-        display: block;
-        margin: 0 auto 4px auto;
-      }
-      .print-footer .brand-title { font-size: 12px; font-weight: bold; color: #174ea6; }
-      .print-footer .brand-contact { font-size: 10.5px; color: #333; margin-top: 2px; }
     }
   </style>
 </head>
@@ -164,8 +163,19 @@
   </div>
 
   <h2 class="screen-main-title">MD Expo 2026 Entry Form</h2>
-  <div class="print-main-title">MD Expo 2026 Health Data</div>
-  <div id="printTimestampTop" class="print-timestamp"></div>
+
+  <!-- Compact Print Header (Top Left Text, Top Right Logo) -->
+  <div class="print-header">
+    <div class="print-header-left">
+      <div class="print-title">MD Expo 2026 Health Data</div>
+      <div class="brand-sub">Results Provided by Back-To-Eden Wellness Club</div>
+      <div class="brand-contact">b2e.wsk.church | b2ewellness@gmail.com</div>
+      <div id="printTimestampTop" class="print-timestamp"></div>
+    </div>
+    <div class="print-header-right">
+      <img src="WSK B2E Club_Banner_R2t.png" alt="Back-To-Eden Wellness Club Logo">
+    </div>
+  </div>
 
   <div class="visitor-selector-box">
     <label for="visitorSearch">Search or Select Visitor</label>
@@ -185,13 +195,6 @@
 
   <form id="expoForm" style="display: none;">
     <div id="dynamicFields"></div>
-
-    <!-- Centered Print Footer -->
-    <div id="printFooter" class="print-footer">
-      <img src="WSK B2E Club_Banner_R2t.png" alt="Back-To-Eden Wellness Club Logo">
-      <span class="brand-title">Results Provided by Back-To-Eden Wellness Club</span><br>
-      <span class="brand-contact">b2e.wsk.church &nbsp;|&nbsp; b2ewellness@gmail.com</span>
-    </div>
 
     <div class="btn-container bottom-action-btn">
       <button type="submit" class="save-btn action-trigger-btn">Retrieve / Save / Update Measurements</button>
@@ -227,11 +230,28 @@
     var options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     document.getElementById('printTimestampTop').innerText = "Printed on: " + now.toLocaleString('en-US', options);
 
+    // Extract values for 3-digit serial formatting
+    var snInput = document.querySelector('input[data-row="1"]');
+    var nameInput = document.getElementById('visitorNameInput') || document.querySelector('input[data-row="2"]');
+
+    var rawSn = snInput && snInput.value.trim() !== '' ? snInput.value.trim() : '0';
+    var paddedSn = !isNaN(rawSn) ? String(rawSn).padStart(3, '0') : rawSn;
+
+    var nameVal = nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim().replace(/\s+/g, '_') : 'Visitor';
+
+    // Update document title for PDF filename: 001_홍길동_MD_Expo_2026_Health_Data
+    var originalTitle = document.title;
+    document.title = paddedSn + "_" + nameVal + "_MD_Expo_2026_Health_Data";
+
     try {
       window.print();
     } catch (e) {
       alert("To print on this phone, tap your browser's menu (⋮ or Share icon) and choose 'Print' or 'Save as PDF'.");
     }
+
+    setTimeout(function() {
+      document.title = originalTitle;
+    }, 1000);
   }
 
   function displayMessage(text, className = "") {
