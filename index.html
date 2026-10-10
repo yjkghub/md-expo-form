@@ -25,7 +25,7 @@
     .visitor-selector-box { background: #e8f0fe; padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #aecbfa; }
     .visitor-selector-box label { font-weight: bold; color: #174ea6; font-size: 14px; margin-bottom: 6px; display: block; }
     .search-input { width: 100%; padding: 10px; border: 1px solid #aecbfa; border-radius: 6px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; background: white; }
-    select { width: 100%; padding: 10px; border: 1px solid #1a73e8; border-radius: 6px; font-size: 15px; background: white; }
+    select { width: 100%; padding: 10px; border: 1px solid #1a73e8; border-radius: 6px; font-size: 15px; background: white; margin-bottom: 12px; }
     .section-title { font-weight: bold; margin-top: 20px; margin-bottom: 10px; color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 4px; font-size: 15px; }
     .form-group { margin-bottom: 14px; position: relative; padding: 6px; border-radius: 6px; transition: background 0.2s; }
     .form-group.filled-group { background-color: #e6f4ea; }
@@ -36,8 +36,13 @@
     .status-badge.filled { background: #ceead6; color: #0d652d; }
     .status-badge.pending { background: #feefc3; color: #b06000; }
     input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; background: white; }
-    .save-btn { width: 100%; padding: 14px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    
+    .save-btn { width: 100%; padding: 14px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .save-btn:hover { background-color: #1557b0; }
     .save-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+    .top-action-btn { margin-top: 4px; }
+    .bottom-action-btn { margin-top: 20px; }
+
     #message { text-align: center; margin-top: 14px; font-weight: bold; font-size: 14px; }
     .success { color: #0f9d58; }
     .error { color: #d93025; }
@@ -66,13 +71,14 @@
     <select id="visitorSelect" onchange="onVisitorChange()">
       <option value="new">+ Register New Visitor</option>
     </select>
+    <button type="button" class="save-btn top-action-btn action-trigger-btn" onclick="triggerSave()">Retrieve / Save / Update Measurements</button>
   </div>
 
   <div id="loading" class="loading">Loading metric structure...</div>
 
   <form id="expoForm" style="display: none;">
     <div id="dynamicFields"></div>
-    <button type="submit" id="submitBtn" class="save-btn">Save / Update Measurements</button>
+    <button type="submit" class="save-btn bottom-action-btn action-trigger-btn">Retrieve / Save / Update Measurements</button>
   </form>
   
   <div id="message"></div>
@@ -111,7 +117,7 @@
 
   async function initApp() {
     try {
-      loadVisitorDropdown();
+      await loadVisitorDropdown();
       const metrics = await apiCall('getFormStructure');
       buildForm(metrics);
     } catch (err) {
@@ -237,8 +243,11 @@
     currentVisitorCol = select.value;
     document.getElementById('message').innerText = "";
 
+    // Clear existing form inputs
+    var inputs = document.querySelectorAll('#dynamicFields input');
+    inputs.forEach(function(inp) { inp.value = ''; });
+
     if (currentVisitorCol === "new") {
-      document.getElementById('expoForm').reset();
       updateBadges({});
       return;
     }
@@ -275,12 +284,22 @@
     });
   }
 
+  function setButtonsState(disabled, text) {
+    var btns = document.querySelectorAll('.action-trigger-btn');
+    btns.forEach(function(b) {
+      b.disabled = disabled;
+      b.innerText = text;
+    });
+  }
+
+  function triggerSave() {
+    document.getElementById('expoForm').dispatchEvent(new Event('submit', { cancelable: true }));
+  }
+
   document.getElementById('expoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    var btn = document.getElementById('submitBtn');
     var msg = document.getElementById('message');
-    btn.disabled = true;
-    btn.innerText = "Saving...";
+    setButtonsState(true, "Saving...");
     msg.className = "";
 
     var values = {};
@@ -301,8 +320,7 @@
       
       msg.className = "success";
       msg.innerText = res.message;
-      btn.disabled = false;
-      btn.innerText = "Save / Update Measurements";
+      setButtonsState(false, "Retrieve / Save / Update Measurements");
       
       currentVisitorCol = res.colIndex;
       await loadVisitorDropdown(res.colIndex);
@@ -311,8 +329,7 @@
     } catch (err) {
       msg.className = "error";
       msg.innerText = "Error: " + err.message;
-      btn.disabled = false;
-      btn.innerText = "Save / Update Measurements";
+      setButtonsState(false, "Retrieve / Save / Update Measurements");
     }
   });
 </script>
