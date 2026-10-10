@@ -51,7 +51,6 @@
     button:hover { background-color: #1a252f; }
     button:disabled { background-color: #95a5a6; cursor: not-allowed; }
     
-    /* BOOTH SECTIONS */
     #metrics-container {
       display: flex;
       flex-direction: column;
@@ -110,7 +109,7 @@
       display: none;
     }
 
-    /* ORIGINAL PRINT LAYOUT FORMAT */
+    /* MATCHING MD Expo 2026 - Health Measurement Entry6.pdf PRINT STYLES */
     @media print {
       @page {
         size: letter portrait;
@@ -235,7 +234,6 @@
     <button id="load-btn" onclick="loadVisitorData()">Load Data</button>
   </div>
 
-  <!-- METRICS CONTAINER -->
   <div id="metrics-container"></div>
 
   <button id="save-btn" class="no-print" onclick="saveData()" style="width: 100%; padding: 15px; font-size: 16px;">Save All Data</button>
@@ -253,6 +251,36 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
+
+    // HARDCODED BOOTH MAP TO ENSURE EXACT GROUPING MATCHING YOUR PDF
+    const BOOTH_MAPPING = {
+      1: "General Information",
+      2: "General Information",
+      3: "Booth 9",
+      4: "Booth 9",
+      5: "Booth 9",
+      6: "Booth 13",
+      7: "Booth 13",
+      8: "Booth 13",
+      9: "Booth 13",
+      10: "Booth 13",
+      11: "Booth 13",
+      12: "Booth 13",
+      13: "Booth 13",
+      14: "Booth 13",
+      15: "Booth 13",
+      16: "Booth 13",
+      17: "Booth 13",
+      18: "Booth 13",
+      19: "Booth 13",
+      20: "Booth 13",
+      21: "Booth 14",
+      22: "Booth 14",
+      23: "Booth 15",
+      24: "Booth 26",
+      25: "Booth 27",
+      26: "Booth 28"
+    };
 
     window.onload = function() {
       document.getElementById("print-date").innerText = "Printed on: " + new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
@@ -296,20 +324,13 @@
       container.innerHTML = "";
       
       const groups = {};
-      let activeBooth = "General Information";
 
       formStructure.forEach((metric, index) => {
-        let b = metric.booth ? metric.booth.toString().trim() : "";
-        if (b !== "") {
-          if (!b.toLowerCase().includes("booth") && !b.toLowerCase().includes("general")) {
-            activeBooth = "Booth " + b;
-          } else {
-            activeBooth = b;
-          }
-        }
+        let displayIdx = index + 1;
+        let boothName = BOOTH_MAPPING[displayIdx] || (metric.booth ? "Booth " + metric.booth : "General Information");
         
-        if (!groups[activeBooth]) groups[activeBooth] = [];
-        groups[activeBooth].push({ ...metric, displayIndex: index + 1 });
+        if (!groups[boothName]) groups[boothName] = [];
+        groups[boothName].push({ ...metric, displayIndex: displayIdx });
       });
 
       for (const [booth, metrics] of Object.entries(groups)) {
@@ -329,7 +350,7 @@
           div.className = "form-group";
           
           const label = document.createElement("label");
-          label.innerText = `${metric.displayIndex} (${metric.name})` + (metric.device ? ` [${metric.device}]` : "");
+          label.innerText = `${metric.displayIndex} (${metric.name})`;
           
           const input = document.createElement("input");
           input.type = "text";
