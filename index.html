@@ -243,7 +243,6 @@
     currentVisitorCol = select.value;
     document.getElementById('message').innerText = "";
 
-    // Clear existing form inputs
     var inputs = document.querySelectorAll('#dynamicFields input');
     inputs.forEach(function(inp) { inp.value = ''; });
 
@@ -304,12 +303,18 @@
 
     var values = {};
     var inputs = document.querySelectorAll('#dynamicFields input');
-    inputs.forEach(function(inp) {
-      values[inp.getAttribute('data-row')] = inp.value;
-    });
+    var visitorName = '';
 
-    var nameInput = document.getElementById('visitorNameInput');
-    var visitorName = nameInput ? nameInput.value : '';
+    inputs.forEach(function(inp) {
+      var row = inp.getAttribute('data-row');
+      values[row] = inp.value;
+      
+      if (inp.id === 'visitorNameInput' || row === "3") {
+        if (inp.value && inp.value.trim() !== '') {
+          visitorName = inp.value.trim();
+        }
+      }
+    });
 
     try {
       const res = await apiCall('saveVisitorData', {
