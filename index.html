@@ -273,8 +273,8 @@
         align-items: center !important;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
-        padding-bottom: 6px;
-        margin-bottom: 8px;
+        padding-bottom: 12px;
+        margin-bottom: 14px;
         width: 100%;
         box-sizing: border-box;
       }
@@ -291,24 +291,25 @@
       .print-header .print-sub-line {
         font-size: 7.5pt;
         color: #333;
-        margin-top: 1px;
-        line-height: 1.1;
+        margin-top: 2px;
+        line-height: 1.2;
       }
       .print-header .print-club-line {
         font-size: 7.5pt;
         font-weight: bold;
-        color: #1a5276;
-        margin-top: 1px;
-        line-height: 1.1;
+        color: #1a5276; /* Matched font color to Korean title */
+        margin-top: 2px;
+        line-height: 1.2;
       }
       .print-header .print-email-line {
         font-size: 7pt;
         color: #555;
-        line-height: 1.1;
+        margin-top: 2px;
+        line-height: 1.2;
       }
       .print-logo-img {
-        max-height: 38px;
-        max-width: 95px;
+        max-height: 52px; /* Enlarged logo height */
+        max-width: 130px; /* Enlarged logo width */
         width: auto;
         height: auto;
         object-fit: contain;
@@ -401,7 +402,7 @@
     <div class="brand-text-area">
       <div class="print-main-title">MD Expo 2026 Health Data Report</div>
       <div class="print-sub-line" id="print-date"></div>
-      <div class="print-sub-line">Provided by Back-To-Eden Wellness Club</div>
+      <div class="print-club-line">Back-To-Eden Wellness Club</div>
       <div class="print-club-line">백투에덴 건강 동우회</div>
       <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
@@ -533,7 +534,7 @@
           labelRow.className = "label-row";
           
           const label = document.createElement("label");
-          label.innerText = `metric.displayIndex({metric.name})` + (metric.device ? ` (${metric.device})` : "");
+          label.innerText = `${metric.displayIndex} (${metric.name})` + (metric.device ? ` (${metric.device})` : "");
           
           const badge = document.createElement("span");
           badge.className = "recorded-badge";
