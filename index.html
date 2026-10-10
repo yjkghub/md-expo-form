@@ -150,7 +150,13 @@
   function renderVisitorOptions(visitors, selectedCol) {
     var select = document.getElementById('visitorSelect');
     select.innerHTML = '<option value="new">+ Register New Visitor</option>';
-    visitors.forEach(function(v) {
+
+    // Sort list alphanumerically by label
+    var sortedVisitors = visitors.slice().sort(function(a, b) {
+      return a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    sortedVisitors.forEach(function(v) {
       var opt = document.createElement('option');
       opt.value = v.colIndex;
       opt.innerText = v.label;
