@@ -88,7 +88,7 @@
     .brand-english {
       font-size: 10pt;
       font-weight: bold;
-      color: #2980b9;
+      color: #1a5276;
       letter-spacing: 0.5px;
     }
     .brand-sub {
@@ -251,7 +251,7 @@
     @media print {
       @page {
         size: letter portrait;
-        margin: 8mm;
+        margin: 6mm;
       }
       body {
         background: white;
@@ -266,81 +266,81 @@
       }
       .print-only { display: block !important; }
       
-      /* HORIZONTAL FLEXBOX HEADER FOR PRINT */
+      /* STRICT GRID CONTAINER FOR TOP RIGHT LOGO ALIGNMENT */
       .print-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        align-items: center !important;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
         width: 100%;
         box-sizing: border-box;
       }
       .print-header .brand-text-area {
         text-align: center;
-        flex: 1;
-        overflow: hidden;
+        width: 100%;
       }
       .print-header .print-main-title {
         font-size: 13pt;
         font-weight: bold;
         color: #1a5276;
-        line-height: 1.2;
+        line-height: 1.1;
       }
       .print-header .print-sub-line {
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #333;
-        margin-top: 2px;
-        line-height: 1.2;
+        margin-top: 1px;
+        line-height: 1.1;
       }
       .print-header .print-club-line {
-        font-size: 8pt;
+        font-size: 7.5pt;
         font-weight: bold;
         color: #1a5276;
         margin-top: 1px;
+        line-height: 1.1;
       }
       .print-header .print-email-line {
-        font-size: 7.5pt;
+        font-size: 7pt;
         color: #555;
+        line-height: 1.1;
       }
       .print-logo-img {
-        max-height: 45px;
-        max-width: 110px;
+        max-height: 38px;
+        max-width: 95px;
         width: auto;
         height: auto;
         object-fit: contain;
-        margin-left: 12px;
-        flex-shrink: 0;
+        justify-self: end;
       }
       
       #metrics-container {
-        gap: 6px;
-        margin-bottom: 8px;
+        gap: 5px;
+        margin-bottom: 6px;
       }
       .booth-section {
         background: none !important;
         border: none !important;
         padding: 0 !important;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
         box-shadow: none !important;
         page-break-inside: avoid;
       }
       .booth-header {
-        font-size: 9pt;
+        font-size: 8.5pt;
         font-weight: bold;
         color: #1a5276 !important;
         border-bottom: 1px solid #1a5276;
         padding-bottom: 1px;
-        margin-bottom: 3px;
-        margin-top: 3px;
+        margin-bottom: 2px;
+        margin-top: 2px;
       }
       /* TWO-COLUMN GRID FOR PRINT */
       .booth-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 3px 12px !important;
+        gap: 2px 10px !important;
       }
       .form-group {
         border-bottom: 1px dotted #ccc !important;
@@ -355,7 +355,7 @@
         width: 68%;
       }
       .form-group label {
-        font-size: 7.5pt;
+        font-size: 7.2pt;
         font-weight: normal;
         color: #000;
       }
@@ -364,7 +364,7 @@
         background: transparent !important;
         text-align: right;
         font-weight: bold;
-        font-size: 8pt;
+        font-size: 7.8pt;
         width: 28% !important;
         padding: 0;
       }
