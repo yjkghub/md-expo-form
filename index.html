@@ -14,8 +14,10 @@
     .brand-title { font-size: 14px; font-weight: bold; color: #174ea6; margin-bottom: 2px; }
     .brand-contact { font-size: 12px; color: #555; }
 
-    /* Print Footer Container (Hidden on Screen) */
+    /* Print Elements (Hidden on Screen) */
     .print-footer { display: none; }
+    .print-main-title { display: none; }
+    .print-timestamp { display: none; }
 
     h2 { margin-top: 0; color: #1a73e8; font-size: 18px; text-align: center; }
     
@@ -62,77 +64,75 @@
     .loading { text-align: center; padding: 30px; color: #666; font-size: 15px; }
 
     /* ========================================================= */
-    /* ULTRA-COMPACT 1-PAGE PRINT STYLES                         */
+    /* SENIOR-FRIENDLY & COMPACT 1-PAGE PRINT STYLES             */
     /* ========================================================= */
     @media print {
       @page { size: portrait; margin: 6mm; }
-      body { background: white !important; padding: 0 !important; color: #000 !important; font-size: 10px !important; }
+      body { background: white !important; padding: 0 !important; color: #000 !important; font-size: 12.5px !important; }
       .card { box-shadow: none !important; padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
       
       /* Hide Non-Essential UI Elements & Top Header */
-      #lockScreen, .visitor-selector-box, .btn-container, .status-badge, .msg-box, .loading, .brand-header { display: none !important; }
+      #lockScreen, .visitor-selector-box, .btn-container, .status-badge, .msg-box, .loading, .brand-header, .screen-main-title { display: none !important; }
       
-      /* Change Title on Print */
-      .print-main-title { text-align: center; font-size: 13px !important; font-weight: bold; color: #1a73e8; margin-bottom: 4px; border-bottom: 1.5px solid #1a73e8; padding-bottom: 2px; }
-      .screen-main-title { display: none !important; }
+      /* Title & Timestamp on Print */
+      .print-main-title { display: block !important; text-align: center; font-size: 18px !important; font-weight: bold; color: #1a73e8; margin-bottom: 2px; }
+      .print-timestamp { display: block !important; text-align: center; font-size: 11px !important; color: #555 !important; margin-bottom: 8px; border-bottom: 1.5px solid #1a73e8; padding-bottom: 4px; }
 
-      /* Multi-Column Layout for Form Sections */
-      #dynamicFields { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; }
+      /* Standard Block Layout */
+      #dynamicFields { display: block !important; }
       
       .section-title { 
-        grid-column: 1 / -1; 
-        font-size: 10px !important; 
-        margin-top: 3px !important; 
-        margin-bottom: 1px !important; 
+        font-size: 13.5px !important; 
+        margin-top: 8px !important; 
+        margin-bottom: 3px !important; 
         background: #f0f0f0 !important; 
-        padding: 2px 4px !important; 
+        padding: 3px 6px !important; 
         border-bottom: 1px solid #ccc !important;
         font-weight: bold !important;
         color: #000 !important;
       }
       
       .form-group { 
-        margin-bottom: 1px !important; 
-        padding: 2px 4px !important; 
+        margin-bottom: 3px !important; 
+        padding: 3px 6px !important; 
         background: transparent !important; 
-        border-bottom: 1px dotted #ddd !important;
+        border-bottom: 1px dotted #ccc !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
       }
       
-      label { font-size: 9px !important; margin-bottom: 0 !important; font-weight: normal !important; flex: 1; }
-      .device-tag { font-size: 7.5px !important; color: #555 !important; }
+      label { font-size: 12px !important; margin-bottom: 0 !important; font-weight: bold !important; flex: 1; color: #111 !important; }
+      .device-tag { font-size: 10px !important; color: #555 !important; font-weight: normal !important; }
       
-      /* Format Text Inputs as Printed Values */
+      /* Format Text Inputs as Larger Printed Values */
       input[type="text"] {
         border: none !important;
         background: transparent !important;
         font-weight: bold !important;
-        font-size: 9.5px !important;
+        font-size: 13px !important;
+        color: #000 !important;
         text-align: right !important;
         padding: 0 !important;
         width: auto !important;
       }
 
-      /* Bottom Right Print Footer Styling */
+      /* Centered Large Logo & Credentials Footer Styling */
       .print-footer {
         display: block !important;
-        grid-column: 1 / -1;
-        text-align: right;
-        margin-top: 8px;
-        padding-top: 4px;
-        border-top: 1px solid #ccc;
+        text-align: center;
+        margin-top: 12px;
+        padding-top: 6px;
+        border-top: 1.5px solid #ccc;
       }
       .print-footer img {
-        max-height: 70px;
+        max-height: 95px;
         width: auto;
-        display: inline-block;
-        margin-bottom: 2px;
+        display: block;
+        margin: 0 auto 4px auto;
       }
-      .print-footer .brand-title { font-size: 10.5px; font-weight: bold; color: #174ea6; }
-      .print-footer .brand-contact { font-size: 9px; color: #444; }
-      .print-footer .print-timestamp { font-size: 8.5px; color: #666; margin-top: 1px; }
+      .print-footer .brand-title { font-size: 12.5px; font-weight: bold; color: #174ea6; }
+      .print-footer .brand-contact { font-size: 11px; color: #333; margin-top: 2px; }
     }
   </style>
 </head>
@@ -159,6 +159,7 @@
 
   <h2 class="screen-main-title">MD Expo 2026 Entry Form</h2>
   <div class="print-main-title">MD Expo 2026 Health Data</div>
+  <div id="printTimestampTop" class="print-timestamp"></div>
 
   <div class="visitor-selector-box">
     <label for="visitorSearch">Search or Select Visitor</label>
@@ -177,14 +178,13 @@
   <div id="loading" class="loading">Loading metric structure...</div>
 
   <form id="expoForm" style="display: none;">
-    <div id="dynamicFields">
-      <!-- Bottom Right Print Footer (Appended inside fields grid during print) -->
-      <div id="printFooter" class="print-footer">
-        <img src="WSK B2E Club_Banner_R2t.png" alt="Back-To-Eden Wellness Club Logo"><br>
-        <span class="brand-title">Results Provided by Back-To-Eden Wellness Club</span><br>
-        <span class="brand-contact">b2e.wsk.church | b2ewellness@gmail.com</span>
-        <div id="printTimestamp" class="print-timestamp"></div>
-      </div>
+    <div id="dynamicFields"></div>
+
+    <!-- Centered Print Footer -->
+    <div id="printFooter" class="print-footer">
+      <img src="WSK B2E Club_Banner_R2t.png" alt="Back-To-Eden Wellness Club Logo">
+      <span class="brand-title">Results Provided by Back-To-Eden Wellness Club</span><br>
+      <span class="brand-contact">b2e.wsk.church &nbsp;|&nbsp; b2ewellness@gmail.com</span>
     </div>
 
     <div class="btn-container bottom-action-btn">
@@ -219,7 +219,7 @@
   function handlePrint() {
     var now = new Date();
     var options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    document.getElementById('printTimestamp').innerText = "Printed on: " + now.toLocaleString('en-US', options);
+    document.getElementById('printTimestampTop').innerText = "Printed on: " + now.toLocaleString('en-US', options);
     window.print();
   }
 
@@ -304,7 +304,6 @@
   function buildForm(metrics) {
     metricsData = metrics;
     var container = document.getElementById('dynamicFields');
-    var footerElement = document.getElementById('printFooter');
     container.innerHTML = '';
 
     if (!metrics || metrics.length === 0) {
@@ -369,11 +368,6 @@
         container.appendChild(group);
       });
     });
-
-    // Re-append the print footer at the end of the dynamic fields container so it sits bottom-right in the grid
-    if (footerElement) {
-      container.appendChild(footerElement);
-    }
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('expoForm').style.display = 'block';
