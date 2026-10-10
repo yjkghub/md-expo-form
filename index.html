@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MD Expo 2026 - Health Measurement Entry</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background-color: #f4f6f8; color: #333; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
+    h2 { margin-top: 0; color: #1a73e8; font-size: 20px; text-align: center; }
+    
+    /* Passcode Screen Overlay */
+    #lockScreen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(244, 246, 248, 0.98); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lock-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 320px; width: 100%; text-align: center; }
+    .lock-box h3 { margin-top: 0; color: #1a73e8; }
+    .lock-box input { width: 100%; padding: 12px; margin: 12px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; text-align: center; }
+    .lock-box button { width: 100%; padding: 12px; background-color: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    #lockError { color: #d93025; font-size: 13px; margin-top: 8px; display: none; }
+
+    /* Form Layout & Controls */
+    .visitor-selector-box { background: #e8f0fe; padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #aecbfa; }
+    .visitor-selector-box label { font-weight: bold; color: #174ea6; font-size: 14px; margin-bottom: 6px; display: block; }
+    .search-input { width: 100%; padding: 10px; border: 1px solid #aecbfa; border-radius: 6px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; background: white; }
+    select { width: 100%; padding: 10px; border: 1px solid #1a73e8; border-radius: 6px; font-size: 15px; background: white; }
+    .section-title { font-weight: bold; margin-top: 20px; margin-bottom: 10px; color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 4px; font-size: 15px; }
+    .form-group { margin-bottom: 14px; position: relative; padding: 6px; border-radius: 6px; transition: background 0.2s; }
+    .form-group.filled-group { background-color: #e6f4ea; }
+    .form-group.pending-group { background-color: #fef7e0; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
+    .device-tag { font-weight: normal; color: #70757a; font-size: 11px; }
+    .status-badge { float: right; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+    .status-badge.filled { background: #ceead6; color: #0d652d; }
+    .status-badge.pending { background: #feefc3; color: #b06000; }
+    input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; background: white; }
+    .save-btn { width: 100%; padding: 14px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    .save-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+    #message { text-align: center; margin-top: 14px; font-weight: bold; font-size: 14px; }
+    .success { color: #0f9d58; }
+    .error { color: #d93025; }
+    .loading { text-align: center; padding: 30px; color: #666; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<!-- Passcode Screen Overlay -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <h3>🔒 MD Expo Entry</h3>
+    <p style="font-size: 13px; color: #666;">Enter passcode to access form:</p>
+    <input type="password" id="passInput" placeholder="Passcode" onkeydown="if(event.key==='Enter') checkPassword()">
+    <button onclick="checkPassword()">Unlock Form</button>
+    <div id="lockError">Incorrect passcode. Try again.</div>
+  </div>
+</div>
+
+<div class="card" id="mainContent" style="display: none;">
+  <h2>MD Expo 2026 Entry Form</h2>
+
+  <div class="visitor-selector-box">
+    <label for="visitorSearch">Search or Select Visitor</label>
+    <input type="text" id="visitorSearch" class="search-input" placeholder="🔍 Type SN or Name to search..." oninput="filterVisitors()">
+    <select id="visitorSelect" onchange="onVisitorChange()">
+      <option value="new">+ Register New Visitor</option>
+    </select>
+  </div>
+
+  <div id="loading" class="loading">Loading metric structure...</div>
+
+  <form id="expoForm" style="display: none;">
+    <div id="dynamicFields"></div>
+    <button type="submit" id="submitBtn" class="save-btn">Save / Update Measurements</button>
+  </form>
+  
+  <div id="message"></div>
+</div>
+
+<script>
+  // CONFIGURATION
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec";
+  const PAGE_PASSWORD = "Expo2026";
+
+  var metricsData = [];
+  var allVisitors = [];
+  var currentVisitorCol = "new";
+
+  function checkPassword() {
+    const entered = document.getElementById('passInput').value;
+    if (entered === PAGE_PASSWORD) {
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      initApp();
+    } else {
+      document.getElementById('lockError').style.display = 'block';
+    }
+  }
+
+  async function apiCall(action, payload = {}) {
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: action, payload: payload })
+    });
+    const json = await response.json();
+    if (json.status === "error") throw new Error(json.message);
+    return json.data;
+  }
+
+  async function initApp() {
+    try {
+      loadVisitorDropdown();
+      const metrics = await apiCall('getFormStructure');
+      buildForm(metrics);
+    } catch (err) {
+      document.getElementById('loading').innerText = "Failed to load metrics: " + err.message;
+    }
+  }
+
+  async function loadVisitorDropdown(selectedCol) {
+    try {
+      allVisitors = await apiCall('getVisitorList');
+      if (selectedCol) currentVisitorCol = selectedCol;
+      renderVisitorOptions(allVisitors, currentVisitorCol);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderVisitorOptions(visitors, selectedCol) {
+    var select = document.getElementById('visitorSelect');
+    select.innerHTML = '<option value="new">+ Register New Visitor</option>';
+    visitors.forEach(function(v) {
+      var opt = document.createElement('option');
+      opt.value = v.colIndex;
+      opt.innerText = v.label;
+      select.appendChild(opt);
+    });
+    select.value = selectedCol || "new";
+  }
+
+  function filterVisitors() {
+    var query = document.getElementById('visitorSearch').value.toLowerCase().trim();
+    if (!query) {
+      renderVisitorOptions(allVisitors, currentVisitorCol);
+      return;
+    }
+
+    var filtered = allVisitors.filter(function(v) {
+      return v.label.toLowerCase().includes(query);
+    });
+
+    renderVisitorOptions(filtered, currentVisitorCol);
+
+    if (filtered.length === 1) {
+      document.getElementById('visitorSelect').value = filtered[0].colIndex;
+      onVisitorChange();
+    }
+  }
+
+  function buildForm(metrics) {
+    metricsData = metrics;
+    var container = document.getElementById('dynamicFields');
+    container.innerHTML = '';
+
+    if (!metrics || metrics.length === 0) {
+      document.getElementById('loading').innerText = "No metrics found in Google Sheet.";
+      return;
+    }
+
+    var grouped = {};
+    metrics.forEach(function(m) {
+      var boothStr = m.booth ? m.booth.toString().trim() : '';
+      var key;
+
+      if (!boothStr || boothStr === '' || boothStr.toLowerCase().includes('general')) {
+        key = "General Information";
+      } else {
+        key = boothStr.toLowerCase().startsWith('booth') ? boothStr : "Booth " + boothStr;
+      }
+
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(m);
+    });
+
+    var keys = Object.keys(grouped);
+    keys.sort(function(a, b) {
+      if (a === "General Information") return -1;
+      if (b === "General Information") return 1;
+      return a.localeCompare(b);
+    });
+
+    keys.forEach(function(groupName) {
+      var sectionHeader = document.createElement('div');
+      sectionHeader.className = 'section-title';
+      sectionHeader.innerText = groupName;
+      container.appendChild(sectionHeader);
+
+      grouped[groupName].forEach(function(item) {
+        var group = document.createElement('div');
+        group.className = 'form-group';
+        group.id = 'group_' + item.rowIndex;
+
+        var label = document.createElement('label');
+        label.innerHTML = item.name + (item.device ? ' <span class="device-tag">(' + item.device + ')</span>' : '');
+        
+        var badge = document.createElement('span');
+        badge.className = 'status-badge pending';
+        badge.id = 'badge_' + item.rowIndex;
+        badge.innerText = '⏳ Pending';
+        label.appendChild(badge);
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'row_' + item.rowIndex;
+        input.id = 'input_' + item.rowIndex;
+        input.setAttribute('data-row', item.rowIndex);
+
+        if (item.name.toLowerCase().includes('name') || item.name.includes('이름')) {
+          input.id = 'visitorNameInput';
+        }
+
+        group.appendChild(label);
+        group.appendChild(input);
+        container.appendChild(group);
+      });
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('expoForm').style.display = 'block';
+  }
+
+  async function onVisitorChange() {
+    var select = document.getElementById('visitorSelect');
+    currentVisitorCol = select.value;
+    document.getElementById('message').innerText = "";
+
+    if (currentVisitorCol === "new") {
+      document.getElementById('expoForm').reset();
+      updateBadges({});
+      return;
+    }
+
+    document.getElementById('message').innerText = "Fetching visitor data...";
+    try {
+      const data = await apiCall('getVisitorData', { colIndex: parseInt(currentVisitorCol, 10) });
+      document.getElementById('message').innerText = "";
+      for (var rowIndex in data) {
+        var input = document.querySelector('input[data-row="' + rowIndex + '"]');
+        if (input) input.value = data[rowIndex];
+      }
+      updateBadges(data);
+    } catch (err) {
+      document.getElementById('message').innerText = "Error fetching data: " + err.message;
+    }
+  }
+
+  function updateBadges(data) {
+    metricsData.forEach(function(item) {
+      var group = document.getElementById('group_' + item.rowIndex);
+      var badge = document.getElementById('badge_' + item.rowIndex);
+      var val = data[item.rowIndex];
+
+      if (val && val.toString().trim() !== '') {
+        group.className = 'form-group filled-group';
+        badge.className = 'status-badge filled';
+        badge.innerText = '✔ Recorded';
+      } else {
+        group.className = 'form-group pending-group';
+        badge.className = 'status-badge pending';
+        badge.innerText = '⏳ Pending';
+      }
+    });
+  }
+
+  document.getElementById('expoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('submitBtn');
+    var msg = document.getElementById('message');
+    btn.disabled = true;
+    btn.innerText = "Saving...";
+    msg.className = "";
+
+    var values = {};
+    var inputs = document.querySelectorAll('#dynamicFields input');
+    inputs.forEach(function(inp) {
+      values[inp.getAttribute('data-row')] = inp.value;
+    });
+
+    var nameInput = document.getElementById('visitorNameInput');
+    var visitorName = nameInput ? nameInput.value : '';
+
+    try {
+      const res = await apiCall('saveVisitorData', {
+        colIndex: currentVisitorCol,
+        visitorName: visitorName,
+        values: values
+      });
+      
+      msg.className = "success";
+      msg.innerText = res.message;
+      btn.disabled = false;
+      btn.innerText = "Save / Update Measurements";
+      
+      currentVisitorCol = res.colIndex;
+      await loadVisitorDropdown(res.colIndex);
+      const updatedData = await apiCall('getVisitorData', { colIndex: res.colIndex });
+      updateBadges(updatedData);
+    } catch (err) {
+      msg.className = "error";
+      msg.innerText = "Error: " + err.message;
+      btn.disabled = false;
+      btn.innerText = "Save / Update Measurements";
+    }
+  });
+</script>
+</body>
+</html>
