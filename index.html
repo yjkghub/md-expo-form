@@ -13,8 +13,58 @@
       background-color: #f8f9fa;
       color: #333;
     }
+
+    /* PASSWORD PROTECTION OVERLAY */
+    #auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .auth-box {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 350px;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .auth-box h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .auth-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .auth-box button:hover { background-color: #2c5282; }
+    .auth-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
     
-    /* TOP BRANDING & LOGO SECTION (CENTER-JUSTIFIED WITH LOGO ON TOP RIGHT) */
+    /* TOP BRANDING & LOGO SECTION */
     .top-brand-header {
       display: flex;
       justify-content: space-between;
@@ -102,14 +152,10 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       transition: background 0.2s;
     }
-    .btn-save {
-      background-color: #2b6cb0; /* Blue */
-    }
+    .btn-save { background-color: #2b6cb0; }
     .btn-save:hover { background-color: #2c5282; }
     
-    .btn-print {
-      background-color: #38a169; /* Green */
-    }
+    .btn-print { background-color: #38a169; }
     .btn-print:hover { background-color: #2f855a; }
     button:disabled { background-color: #a0aec0 !important; cursor: not-allowed; }
 
@@ -212,7 +258,7 @@
         color: #000;
         font-size: 9pt;
       }
-      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge {
+      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
         display: none !important;
       }
       .print-only { display: block !important; }
@@ -260,7 +306,6 @@
         margin-bottom: 4px;
         margin-top: 4px;
       }
-      /* TWO-COLUMN GRID FOR PRINT */
       .booth-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -307,7 +352,18 @@
 </head>
 <body>
 
-  <!-- TOP BRANDING HEADER (CENTERED TEXT WITH LOGO ON TOP RIGHT) -->
+  <!-- PASSWORD PROTECTION OVERLAY -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h3>MD Expo 2026 Portal</h3>
+      <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Y' || event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Portal</button>
+      <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- TOP BRANDING HEADER -->
   <div class="top-brand-header no-print">
     <div class="brand-text-area">
       <div class="brand-korean">백투에덴 건강 동우회</div>
@@ -328,7 +384,7 @@
     <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
   </div>
 
-  <!-- CONTROL PANEL WITH SEARCH, DROPDOWN, & COLORED BUTTONS -->
+  <!-- CONTROL PANEL -->
   <div class="header-controls no-print">
     <label class="control-label">Search or Select Visitor</label>
     <input type="text" id="visitor-search" class="search-input-box" placeholder="🔍 Type SN or Name to search..." oninput="filterVisitorDropdown()">
@@ -362,7 +418,17 @@
     let formStructure = [];
     let allVisitors = [];
 
-    window.onload = function() {
+    function checkPassword() {
+      const pwd = document.getElementById("password-input").value;
+      if (pwd === "Expo2026") {
+        document.getElementById("auth-overlay").style.display = "none";
+        initApp();
+      } else {
+        document.getElementById("auth-error").style.display = "block";
+      }
+    }
+
+    function initApp() {
       document.getElementById("print-date").innerText = "Printed on: " + new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 
       showStatus("Loading system...", "loading");
@@ -371,7 +437,7 @@
         buildForm();
         loadVisitorDropdown();
       });
-    };
+    }
 
     function loadVisitorDropdown() {
       fetchAPI({ action: "getVisitorList" }, function(res) {
