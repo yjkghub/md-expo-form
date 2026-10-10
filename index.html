@@ -246,7 +246,7 @@
     .print-only { display: none; }
 
     /* =========================================
-       TWO-COLUMN PRINT PDF STYLING (BALANCED +50% SIZING)
+       TWO-COLUMN PRINT PDF STYLING (SENIOR OPTIMIZED: +50% LARGER)
        ========================================= */
     @media print {
       @page {
@@ -259,7 +259,7 @@
         margin: 0;
         max-width: 100%;
         color: #000;
-        font-size: 9.5pt; /* Balanced +50% larger base print font */
+        font-size: 11pt; /* Scaled up clearly */
       }
       .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
         display: none !important;
@@ -273,8 +273,8 @@
         align-items: center !important;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
         width: 100%;
         box-sizing: border-box;
       }
@@ -283,33 +283,33 @@
         width: 100%;
       }
       .print-header .print-main-title {
-        font-size: 13pt;
+        font-size: 15pt;
         font-weight: bold;
         color: #1a5276;
         line-height: 1.1;
       }
       .print-header .print-sub-line {
-        font-size: 8pt;
+        font-size: 9pt;
         color: #333;
         margin-top: 1px;
         line-height: 1.1;
       }
       .print-header .print-club-line {
-        font-size: 8pt;
+        font-size: 9pt;
         font-weight: bold;
         color: #1a5276;
         margin-top: 1px;
         line-height: 1.1;
       }
       .print-header .print-email-line {
-        font-size: 7.5pt;
+        font-size: 8.5pt;
         color: #555;
         margin-top: 1px;
         line-height: 1.1;
       }
       .print-logo-img {
-        max-height: 42px;
-        max-width: 105px;
+        max-height: 45px;
+        max-width: 110px;
         width: auto;
         height: auto;
         object-fit: contain;
@@ -329,7 +329,7 @@
         page-break-inside: avoid;
       }
       .booth-header {
-        font-size: 9.5pt;
+        font-size: 11pt;
         font-weight: bold;
         color: #1a5276 !important;
         border-bottom: 1px solid #1a5276;
@@ -353,10 +353,10 @@
       }
       .label-row {
         margin-bottom: 0;
-        width: 67%;
+        width: 65%;
       }
       .form-group label {
-        font-size: 8.5pt;
+        font-size: 10pt; /* Explicitly large for seniors (+50% over original 7pt) */
         font-weight: normal;
         color: #000;
         line-height: 1.1;
@@ -366,8 +366,8 @@
         background: transparent !important;
         text-align: right;
         font-weight: bold;
-        font-size: 9pt;
-        width: 31% !important;
+        font-size: 11pt; /* Explicitly large for values (+50% over original 7.8pt) */
+        width: 33% !important;
         padding: 0;
       }
     }
