@@ -43,9 +43,9 @@
     .top-action-btn { margin-top: 4px; }
     .bottom-action-btn { margin-top: 20px; }
 
-    #message { text-align: center; margin-top: 14px; font-weight: bold; font-size: 14px; }
-    .success { color: #0f9d58; }
-    .error { color: #d93025; }
+    .msg-box { text-align: center; margin-top: 10px; font-weight: bold; font-size: 14px; min-height: 18px; }
+    .msg-box.success { color: #0f9d58; }
+    .msg-box.error { color: #d93025; }
     .loading { text-align: center; padding: 30px; color: #666; font-size: 15px; }
   </style>
 </head>
@@ -72,6 +72,7 @@
       <option value="new">+ Register New Visitor</option>
     </select>
     <button type="button" class="save-btn top-action-btn action-trigger-btn" onclick="triggerSave()">Retrieve / Save / Update Measurements</button>
+    <div id="messageTop" class="msg-box"></div>
   </div>
 
   <div id="loading" class="loading">Loading metric structure...</div>
@@ -81,7 +82,7 @@
     <button type="submit" class="save-btn bottom-action-btn action-trigger-btn">Retrieve / Save / Update Measurements</button>
   </form>
   
-  <div id="message"></div>
+  <div id="messageBottom" class="msg-box"></div>
 </div>
 
 <script>
@@ -102,6 +103,17 @@
     } else {
       document.getElementById('lockError').style.display = 'block';
     }
+  }
+
+  function displayMessage(text, className = "") {
+    var topMsg = document.getElementById('messageTop');
+    var bottomMsg = document.getElementById('messageBottom');
+    
+    topMsg.className = "msg-box " + className;
+    bottomMsg.className = "msg-box " + className;
+    
+    topMsg.innerText = text;
+    bottomMsg.innerText = text;
   }
 
   async function apiCall(action, payload = {}) {
@@ -241,7 +253,7 @@
   async function onVisitorChange() {
     var select = document.getElementById('visitorSelect');
     currentVisitorCol = select.value;
-    document.getElementById('message').innerText = "";
+    displayMessage("");
 
     var inputs = document.querySelectorAll('#dynamicFields input');
     inputs.forEach(function(inp) { inp.value = ''; });
@@ -251,17 +263,17 @@
       return;
     }
 
-    document.getElementById('message').innerText = "Fetching visitor data...";
+    displayMessage("Fetching visitor data...");
     try {
       const data = await apiCall('getVisitorData', { colIndex: parseInt(currentVisitorCol, 10) });
-      document.getElementById('message').innerText = "";
+      displayMessage("");
       for (var rowIndex in data) {
         var input = document.querySelector('input[data-row="' + rowIndex + '"]');
         if (input) input.value = data[rowIndex];
       }
       updateBadges(data);
     } catch (err) {
-      document.getElementById('message').innerText = "Error fetching data: " + err.message;
+      displayMessage("Error fetching data: " + err.message, "error");
     }
   }
 
@@ -297,9 +309,8 @@
 
   document.getElementById('expoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    var msg = document.getElementById('message');
     setButtonsState(true, "Saving...");
-    msg.className = "";
+    displayMessage("");
 
     var values = {};
     var inputs = document.querySelectorAll('#dynamicFields input');
@@ -323,8 +334,7 @@
         values: values
       });
       
-      msg.className = "success";
-      msg.innerText = res.message;
+      displayMessage(res.message, "success");
       setButtonsState(false, "Retrieve / Save / Update Measurements");
       
       currentVisitorCol = res.colIndex;
@@ -332,8 +342,7 @@
       const updatedData = await apiCall('getVisitorData', { colIndex: res.colIndex });
       updateBadges(updatedData);
     } catch (err) {
-      msg.className = "error";
-      msg.innerText = "Error: " + err.message;
+      displayMessage(err.message, "error");
       setButtonsState(false, "Retrieve / Save / Update Measurements");
     }
   });
