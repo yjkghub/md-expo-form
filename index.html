@@ -8,49 +8,101 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
-      max-width: 900px;
+      max-width: 850px;
       margin: 0 auto;
-      background-color: #f9f9f9;
+      background-color: #f4f7f6;
       color: #333;
     }
     
-    .screen-header {
+    /* TOP BRANDING & LOGO SECTION */
+    .top-brand-header {
       text-align: center;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-    .header-controls {
+      margin-bottom: 25px;
       background: #ffffff;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .brand-logo-img {
+      max-height: 70px;
+      width: auto;
+      margin-bottom: 10px;
+    }
+    .brand-title-main {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #1a5276;
+    }
+    .brand-sub-main {
+      font-size: 9pt;
+      color: #555;
+      margin-top: 2px;
+    }
+    .main-heading {
+      text-align: center;
+      color: #007bff;
+      font-size: 20pt;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    /* SEARCH & CONTROLS BOX */
+    .header-controls {
+      background: #eaf2f8;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #d4e6f1;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04);
       margin-bottom: 25px;
+    }
+    .control-label {
+      font-weight: bold;
+      color: #1b4f72;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 15px;
+    }
+    .search-input-box, select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 15px;
+      border: 1px solid #b2babb;
+      border-radius: 6px;
+      background: #ffffff;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    .button-container {
       display: flex;
-      flex-wrap: wrap;
       gap: 15px;
-      align-items: center;
+      margin-top: 15px;
     }
-    select, input[type="text"] {
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    
+    /* COLORED BUTTONS */
+    .btn-action {
       flex: 1;
-      min-width: 200px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #2c3e50;
+      padding: 14px 20px;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: background 0.2s;
     }
-    button:hover { background-color: #1a252f; }
-    button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+    .btn-save {
+      background-color: #2471a3; /* Vibrant blue */
+    }
+    .btn-save:hover { background-color: #1b4f72; }
     
+    .btn-print {
+      background-color: #27ae60; /* Vibrant green */
+    }
+    .btn-print:hover { background-color: #1e8449; }
+    button:disabled { background-color: #95a5a6 !important; cursor: not-allowed; }
+
+    /* BOOTH SECTIONS */
     #metrics-container {
       display: flex;
       flex-direction: column;
@@ -58,45 +110,69 @@
       margin-bottom: 25px;
     }
     .booth-section {
-      background: #ffffff;
-      padding: 20px 25px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: transparent;
     }
     .booth-header {
-      margin-top: 0;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #2c3e50;
-      color: #2c3e50;
-      font-size: 1.2em;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      color: #007bff;
+      font-size: 1.35em;
+      font-weight: bold;
     }
     .booth-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 15px 40px; 
-    }
-    .form-group {
       display: flex;
       flex-direction: column;
+      gap: 12px;
+    }
+    
+    /* FORM CARD & RECORDED TAG */
+    .form-group {
+      background: #ffffff;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      position: relative;
+    }
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
     .form-group label {
-      font-weight: bold;
-      margin-bottom: 8px;
+      font-weight: 600;
       font-size: 14px;
-      color: #34495e;
+      color: #2c3e50;
+    }
+    .recorded-badge {
+      background-color: #d4edda;
+      color: #155724;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: none; /* Shown dynamically if value exists */
     }
     .form-group input {
+      width: 100%;
       padding: 10px;
       border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+      background: #fafafa;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #007bff;
+      background: #fff;
     }
 
     #status {
       margin-top: 15px;
       padding: 15px;
-      border-radius: 4px;
+      border-radius: 8px;
       font-weight: bold;
       white-space: pre-wrap; 
       display: none;
@@ -107,7 +183,9 @@
 
     .print-only { display: none; }
 
-    /* EXACT PRINT LAYOUT FROM PREVIOUS WORKING PDF */
+    /* =========================================
+       SINGLE-COLUMN PRINT PDF STYLING
+       ========================================= */
     @media print {
       @page {
         size: letter portrait;
@@ -121,75 +199,80 @@
         color: #000;
         font-size: 10pt;
       }
-      .no-print, .header-controls, #save-btn, #status, .screen-header {
+      .no-print, .header-controls, #save-btn, #status, .screen-header, .recorded-badge {
         display: none !important;
       }
       .print-only { display: block !important; }
       
       .print-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        text-align: center;
         border-bottom: 2px solid #000;
-        padding-bottom: 10px;
+        padding-bottom: 12px;
         margin-bottom: 15px;
       }
-      .print-logo {
-        max-height: 60px;
+      .print-logo-img {
+        max-height: 55px;
         width: auto;
       }
-      .print-title-area {
-        text-align: right;
-      }
       .print-title {
-        font-size: 16pt;
+        font-size: 15pt;
         font-weight: bold;
-        margin: 0;
+        margin-top: 6px;
       }
       .print-timestamp {
         font-size: 8.5pt;
         color: #555;
-        margin-top: 4px;
+        margin-top: 3px;
       }
       
       #metrics-container {
-        gap: 10px;
-        margin-bottom: 10px;
+        gap: 8px;
+        margin-bottom: 15px;
       }
       .booth-section {
-        box-shadow: none;
-        padding: 0;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         page-break-inside: avoid;
       }
       .booth-header {
-        font-size: 10.5pt;
+        font-size: 10pt;
         font-weight: bold;
+        color: #000 !important;
         border-bottom: 1px solid #000;
         padding-bottom: 2px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
+        margin-top: 8px;
       }
       .booth-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 4px 15px;
+        gap: 4px;
       }
       .form-group {
+        background: none !important;
+        border: none !important;
+        border-bottom: 1px dotted #bbb !important;
+        border-radius: 0 !important;
+        padding: 3px 0 !important;
+        box-shadow: none !important;
+        display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px dotted #bbb;
-        padding-bottom: 2px;
+      }
+      .label-row {
+        margin-bottom: 0;
+        width: 65%;
       }
       .form-group label {
         font-size: 9pt;
         font-weight: normal;
+        color: #000;
       }
       .form-group input {
-        border: none;
+        border: none !important;
+        background: transparent !important;
         text-align: right;
         font-weight: bold;
         font-size: 9.5pt;
-        width: 80px;
+        width: 30% !important;
         padding: 0;
       }
 
@@ -200,6 +283,7 @@
         text-align: center;
         font-size: 8.5pt;
         line-height: 1.3;
+        page-break-inside: avoid;
       }
       .brand-korean { font-size: 10pt; font-weight: bold; }
       .brand-english { font-size: 9pt; font-weight: bold; letter-spacing: 0.5px; }
@@ -209,31 +293,42 @@
 </head>
 <body>
 
-  <h2 class="screen-header no-print">MD Expo 2026 - Health Data Tracker</h2>
-
-  <!-- PRINT HEADER WITH LOGO PLACEHOLDER -->
-  <div class="print-only print-header">
-    <img src="logo.png" alt="Logo" class="print-logo" onerror="this.style.display='none'">
-    <div class="print-title-area">
-      <div class="print-title">MD Expo 2026 Health Data</div>
-      <div class="print-timestamp" id="print-date"></div>
-    </div>
+  <!-- SCREEN TOP BRANDING HEADER -->
+  <div class="top-brand-header no-print">
+    <img src="logo.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+    <div class="brand-title-main">Results Provided by Back-To-Eden Wellness Club</div>
+    <div class="brand-sub-main">b2e.wsk.church | b2ewellness@gmail.com</div>
   </div>
 
-  <!-- CONTROL PANEL -->
+  <h2 class="main-heading">MD Expo 2026 Entry Form</h2>
+
+  <!-- PRINT ONLY HEADER -->
+  <div class="print-only print-header">
+    <img src="logo.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+    <div class="print-title">MD Expo 2026 Health Data</div>
+    <div class="print-timestamp" id="print-date"></div>
+  </div>
+
+  <!-- CONTROL PANEL WITH SEARCH, DROPDOWN, & COLORED BUTTONS -->
   <div class="header-controls no-print">
+    <label class="control-label">Search or Select Visitor</label>
+    <input type="text" id="visitor-search" class="search-input-box" placeholder="🔍 Type SN or Name to search..." oninput="filterVisitorDropdown()">
+    
     <select id="visitor-select" onchange="handleVisitorChange()">
       <option value="">-- Select or Add New Visitor --</option>
       <option value="new">+ Add New Visitor</option>
     </select>
     
-    <input type="text" id="new-visitor-name" placeholder="Enter New Visitor Name" style="display: none;">
-    <button id="load-btn" onclick="loadVisitorData()">Load Data</button>
+    <input type="text" id="new-visitor-name" class="search-input-box" placeholder="Enter New Visitor Name" style="display: none; margin-top: 10px;">
+    
+    <div class="button-container">
+      <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Retrieve / Save / Update Measurements</button>
+      <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Result</button>
+    </div>
   </div>
 
+  <!-- METRICS CONTAINER -->
   <div id="metrics-container"></div>
-
-  <button id="save-btn" class="no-print" onclick="saveData()" style="width: 100%; padding: 15px; font-size: 16px;">Save All Data</button>
   
   <div id="status" class="no-print"></div>
 
@@ -248,34 +343,35 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
+    let allVisitors = [];
 
     const BOOTH_MAPPING = {
-      1: "General Information",
-      2: "General Information",
-      3: "Booth 9",
-      4: "Booth 9",
-      5: "Booth 9",
-      6: "Booth 13",
-      7: "Booth 13",
-      8: "Booth 13",
-      9: "Booth 13",
-      10: "Booth 13",
-      11: "Booth 13",
-      12: "Booth 13",
+      1: "Booth 1",
+      2: "Booth 2",
+      3: "Booth 3",
+      4: "Booth 4",
+      5: "Booth 5",
+      6: "Booth 6",
+      7: "Booth 7",
+      8: "Booth 8",
+      9: "Booth 9",
+      10: "Booth 10",
+      11: "Booth 11",
+      12: "Booth 12",
       13: "Booth 13",
-      14: "Booth 13",
-      15: "Booth 13",
-      16: "Booth 13",
-      17: "Booth 13",
-      18: "Booth 13",
-      19: "Booth 13",
-      20: "Booth 13",
-      21: "Booth 14",
-      22: "Booth 14",
-      23: "Booth 15",
-      24: "Booth 26",
-      25: "Booth 27",
-      26: "Booth 28"
+      14: "Booth 14",
+      15: "Booth 15",
+      16: "Booth 16",
+      17: "Booth 17",
+      18: "Booth 18",
+      19: "Booth 19",
+      20: "Booth 20",
+      21: "Booth 21",
+      22: "Booth 22",
+      23: "Booth 23",
+      24: "Booth 24",
+      25: "Booth 25",
+      26: "Booth 26"
     };
 
     window.onload = function() {
@@ -291,16 +387,30 @@
 
     function loadVisitorDropdown() {
       fetchAPI({ action: "getVisitorList" }, function(res) {
-        const select = document.getElementById("visitor-select");
-        select.options.length = 2; 
-        res.data.forEach(v => {
-          let opt = document.createElement("option");
-          opt.value = v.colIndex;
-          opt.text = v.label;
-          select.appendChild(opt);
-        });
+        allVisitors = res.data;
+        populateDropdown(allVisitors);
         hideStatus();
       });
+    }
+
+    function populateDropdown(visitors) {
+      const select = document.getElementById("visitor-select");
+      const currentValue = select.value;
+      select.options.length = 2; // Keep default and "+ Add New Visitor"
+      
+      visitors.forEach(v => {
+        let opt = document.createElement("option");
+        opt.value = v.colIndex;
+        opt.text = v.label;
+        select.appendChild(opt);
+      });
+      select.value = currentValue;
+    }
+
+    function filterVisitorDropdown() {
+      const query = document.getElementById("visitor-search").value.toLowerCase();
+      const filtered = allVisitors.filter(v => v.label.toLowerCase().includes(query));
+      populateDropdown(filtered);
     }
 
     function handleVisitorChange() {
@@ -312,6 +422,7 @@
       } else {
         nameInput.style.display = "none";
         nameInput.value = "";
+        if (select.value) loadVisitorData();
       }
     }
 
@@ -345,15 +456,27 @@
           const div = document.createElement("div");
           div.className = "form-group";
           
+          const labelRow = document.createElement("div");
+          labelRow.className = "label-row";
+          
           const label = document.createElement("label");
-          label.innerText = `${metric.displayIndex} (${metric.name})`;
+          label.innerText = `${metric.displayIndex} (${metric.name})` + (metric.device ? ` (${metric.device})` : "");
+          
+          const badge = document.createElement("span");
+          badge.className = "recorded-badge";
+          badge.id = "badge_" + metric.rowIndex;
+          badge.innerText = "✓ Recorded";
+          
+          labelRow.appendChild(label);
+          labelRow.appendChild(badge);
           
           const input = document.createElement("input");
           input.type = "text";
           input.id = "row_" + metric.rowIndex;
           input.dataset.rowIndex = metric.rowIndex;
+          input.oninput = function() { checkInputRecorded(this, metric.rowIndex); };
           
-          div.appendChild(label);
+          div.appendChild(labelRow);
           div.appendChild(input);
           grid.appendChild(div);
         });
@@ -363,9 +486,19 @@
       }
     }
 
+    function checkInputRecorded(inputElement, rowIndex) {
+      const badge = document.getElementById("badge_" + rowIndex);
+      if (inputElement.value.trim() !== "") {
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
     function clearForm() {
       document.querySelectorAll("#metrics-container input").forEach(input => {
         input.value = "";
+        input.dispatchEvent(new Event('input'));
       });
     }
 
@@ -378,10 +511,13 @@
         clearForm();
         for (let rowIndex in res.data) {
           let input = document.getElementById("row_" + rowIndex);
-          if (input) input.value = res.data[rowIndex];
+          if (input) {
+            input.value = res.data[rowIndex];
+            input.dispatchEvent(new Event('input'));
+          }
         }
         showStatus("Data loaded successfully.", "success");
-        setTimeout(hideStatus, 3000);
+        setTimeout(hideStatus, 2000);
       });
     }
 
@@ -414,7 +550,7 @@
         document.getElementById("save-btn").disabled = false;
         
         if (colIndex === "new") {
-          document.getElementById("visitor-select").value = "";
+          document.getElementById("visitor-search").value = "";
           document.getElementById("new-visitor-name").style.display = "none";
           document.getElementById("new-visitor-name").value = "";
           loadVisitorDropdown(); 
