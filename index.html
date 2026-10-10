@@ -12,7 +12,7 @@
       margin: 0 auto;
       background-color: #f8f9fa;
       color: #333;
-      font-size: 16px; /* Increased base font size for seniors */
+      font-size: 16px;
     }
 
     /* PASSWORD PROTECTION OVERLAY */
@@ -262,7 +262,7 @@
         margin: 0;
         max-width: 100%;
         color: #000;
-        font-size: 9.5pt; /* Increased print font size */
+        font-size: 9.5pt;
       }
       .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
         display: none !important;
@@ -341,3 +341,65 @@
         margin-bottom: 3px;
         margin-top: 3px;
       }
+      /* TWO-COLUMN GRID FOR PRINT */
+      .booth-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 3px 12px !important;
+      }
+      .form-group {
+        border-bottom: 1px dotted #ccc !important;
+        padding: 2px 0 !important;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .label-row {
+        margin-bottom: 0;
+        width: 66%;
+      }
+      .form-group label {
+        font-size: 8.5pt;
+        font-weight: normal;
+        color: #000;
+      }
+      .form-group input {
+        border: none !important;
+        background: transparent !important;
+        text-align: right;
+        font-weight: bold;
+        font-size: 9pt;
+        width: 30% !important;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PASSWORD PROTECTION OVERLAY -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h3>MD Expo 2026 Portal</h3>
+      <p style="font-size: 16px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Portal</button>
+      <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- TOP BRANDING HEADER (SCREEN) -->
+  <div class="top-brand-header no-print">
+    <div class="brand-text-area">
+      <div class="brand-korean">백투에덴 건강 동우회</div>
+      <div class="brand-english">BACK-TO-EDEN WELLNESS CLUB</div>
+      <div class="brand-sub">Provided by Back-To-Eden Wellness Club | b2e.wsk.church | b2ewellness@gmail.com</div>
+    </div>
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+  </div>
+
+  <h2 class="main-heading">MD Expo 2026 Entry Form</h2>
+
+  <!-- PRINT ONLY HEADER -->
+  <div
