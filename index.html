@@ -356,7 +356,7 @@
         width: 63%;
       }
       .form-group label {
-        font-size: 11.5pt; /* Maximized label size */
+        font-size: 11.5pt;
         font-weight: normal;
         color: #000;
         line-height: 1.0;
@@ -366,7 +366,7 @@
         background: transparent !important;
         text-align: right;
         font-weight: bold;
-        font-size: 12.5pt; /* Maximized value size */
+        font-size: 12.5pt;
         width: 35% !important;
         padding: 0;
       }
@@ -422,7 +422,7 @@
     
     <div class="button-container">
       <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Retrieve / Save / Update Measurements</button>
-      <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Result</button>
+      <button class="btn-action btn-print" onclick="triggerPrint()">🖨️ Print Result</button>
     </div>
   </div>
 
@@ -435,6 +435,14 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
     let allVisitors = [];
+
+    function triggerPrint() {
+      try {
+        window.print();
+      } catch (e) {
+        alert("To print or save as PDF on mobile, please tap your browser's menu (three dots) and select 'Share' or 'Print'.");
+      }
+    }
 
     function checkPassword() {
       const pwd = document.getElementById("password-input").value;
