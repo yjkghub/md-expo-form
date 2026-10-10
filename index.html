@@ -64,9 +64,11 @@
     .auth-box button:hover { background-color: #154360; }
     .auth-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
     
-    /* TOP BRANDING & LOGO SECTION */
+    /* TOP BRANDING & LOGO SECTION (SCREEN) */
     .top-brand-header {
-      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background: #ffffff;
       padding: 15px 20px;
       border-radius: 8px;
@@ -76,7 +78,7 @@
     }
     .brand-text-area {
       text-align: center;
-      width: 100%;
+      flex: 1;
     }
     .brand-korean {
       font-size: 11pt;
@@ -94,12 +96,10 @@
       color: #555;
     }
     .brand-logo-img {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
       max-height: 50px;
       width: auto;
+      margin-left: 15px;
+      flex-shrink: 0;
     }
     
     .main-heading {
@@ -261,13 +261,16 @@
         color: #000;
         font-size: 8.5pt;
       }
-      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay, .print-footer {
+      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
         display: none !important;
       }
       .print-only { display: block !important; }
       
+      /* HORIZONTAL FLEXBOX HEADER FOR PRINT */
       .print-header {
-        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
         padding-bottom: 8px;
@@ -277,29 +280,39 @@
       }
       .print-header .brand-text-area {
         text-align: center;
-        width: 100%;
+        flex: 1;
+        overflow: hidden;
       }
       .print-header .print-main-title {
-        font-size: 14pt;
+        font-size: 13pt;
         font-weight: bold;
         color: #1a5276;
+        line-height: 1.2;
       }
-      .print-header .brand-sub {
-        font-size: 9.5pt;
+      .print-header .print-sub-line {
+        font-size: 8pt;
+        color: #333;
+        margin-top: 2px;
+        line-height: 1.2;
+      }
+      .print-header .print-club-line {
+        font-size: 8pt;
         font-weight: bold;
-        color: #2980b9;
+        color: #1a5276;
+        margin-top: 1px;
       }
       .print-header .print-email-line {
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #555;
       }
       .print-logo-img {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
         max-height: 45px;
+        max-width: 110px;
         width: auto;
+        height: auto;
+        object-fit: contain;
+        margin-left: 12px;
+        flex-shrink: 0;
       }
       
       #metrics-container {
@@ -383,11 +396,13 @@
 
   <h2 class="main-heading">MD Expo 2026 Entry Form</h2>
 
-  <!-- PRINT ONLY HEADER (MATCHING REFERENCE IMAGE 2 WITHOUT "RESULTS") -->
+  <!-- PRINT ONLY HEADER (EXACT REQUESTED HIERARCHY WITH HORIZONTAL LOGO) -->
   <div class="print-only print-header">
     <div class="brand-text-area">
-      <div class="print-main-title">MD Expo 2026 Health Data</div>
-      <div class="brand-sub">Provided by Back-To-Eden Wellness Club</div>
+      <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+      <div class="print-sub-line" id="print-date"></div>
+      <div class="print-sub-line">Provided by Back-To-Eden Wellness Club</div>
+      <div class="print-club-line">백투에덴 건강 동우회</div>
       <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
     <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
@@ -430,6 +445,8 @@
     }
 
     function initApp() {
+      document.getElementById("print-date").innerText = "Printed on: " + new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
       showStatus("Loading system...", "loading");
       fetchAPI({ action: "getFormStructure" }, function(res) {
         formStructure = res.data;
@@ -582,4 +599,62 @@
       const colIndex = select.value;
       
       if (!colIndex) {
-        alert("Please select a visitor
+        alert("Please select a visitor or 'Add New Visitor'.");
+        return;
+      }
+
+      const values = {};
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        values[input.dataset.rowIndex] = input.value;
+      });
+
+      showStatus("Saving data to Spreadsheet and Drive...", "loading");
+      document.getElementById("save-btn").disabled = true;
+
+      fetchAPI({ 
+        action: "saveVisitorData", 
+        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
+      }, function(res) {
+        showStatus(res.message || res.data.message, "success");
+        document.getElementById("save-btn").disabled = false;
+        
+        if (colIndex === "new") {
+          document.getElementById("visitor-search").value = "";
+          loadVisitorDropdown(); 
+        }
+      });
+    }
+
+    function fetchAPI(data, onSuccess) {
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(res => {
+        if (res.status === "success") onSuccess(res);
+        else {
+          showStatus("Error: " + res.message, "error");
+          document.getElementById("save-btn").disabled = false;
+        }
+      })
+      .catch(err => {
+        showStatus("Network Error: " + err.message, "error");
+        document.getElementById("save-btn").disabled = false;
+      });
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById("status");
+      statusDiv.style.display = "block";
+      statusDiv.className = "status-" + type;
+      statusDiv.innerText = message;
+    }
+
+    function hideStatus() {
+      document.getElementById("status").style.display = "none";
+    }
+  </script>
+</body>
+</html>
