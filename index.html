@@ -66,9 +66,7 @@
     
     /* TOP BRANDING & LOGO SECTION */
     .top-brand-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      position: relative;
       background: #ffffff;
       padding: 15px 20px;
       border-radius: 8px;
@@ -78,7 +76,7 @@
     }
     .brand-text-area {
       text-align: center;
-      flex: 1;
+      width: 100%;
     }
     .brand-korean {
       font-size: 11pt;
@@ -96,10 +94,12 @@
       color: #555;
     }
     .brand-logo-img {
-      max-height: 55px;
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      max-height: 50px;
       width: auto;
-      margin-left: 15px;
-      flex-shrink: 0;
     }
     
     .main-heading {
@@ -261,50 +261,45 @@
         color: #000;
         font-size: 8.5pt;
       }
-      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
+      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay, .print-footer {
         display: none !important;
       }
       .print-only { display: block !important; }
       
       .print-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        position: relative;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
-        padding-bottom: 6px;
-        margin-bottom: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
         width: 100%;
         box-sizing: border-box;
       }
       .print-header .brand-text-area {
         text-align: center;
-        flex: 1;
-        overflow: hidden;
+        width: 100%;
       }
-      .print-header .brand-korean {
-        font-size: 9.5pt;
+      .print-header .print-main-title {
+        font-size: 14pt;
         font-weight: bold;
         color: #1a5276;
       }
-      .print-header .brand-english {
-        font-size: 8.5pt;
+      .print-header .brand-sub {
+        font-size: 9.5pt;
         font-weight: bold;
         color: #2980b9;
-        letter-spacing: 0.5px;
       }
-      .print-header .brand-sub {
-        font-size: 7pt;
+      .print-header .print-email-line {
+        font-size: 8pt;
         color: #555;
       }
       .print-logo-img {
-        max-height: 40px;
-        max-width: 110px;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        max-height: 45px;
         width: auto;
-        height: auto;
-        object-fit: contain;
-        margin-left: 10px;
-        flex-shrink: 0;
       }
       
       #metrics-container {
@@ -360,17 +355,6 @@
         width: 28% !important;
         padding: 0;
       }
-
-      .print-footer {
-        margin-top: 8px;
-        border-top: 1px solid #1a5276;
-        padding-top: 4px;
-        text-align: center;
-        font-size: 7pt;
-        line-height: 1.1;
-        page-break-inside: avoid;
-        color: #1a5276;
-      }
     }
   </style>
 </head>
@@ -392,19 +376,19 @@
     <div class="brand-text-area">
       <div class="brand-korean">백투에덴 건강 동우회</div>
       <div class="brand-english">BACK-TO-EDEN WELLNESS CLUB</div>
-      <div class="brand-sub">Results Provided by Back-To-Eden Wellness Club | b2e.wsk.church | b2ewellness@gmail.com</div>
+      <div class="brand-sub">Provided by Back-To-Eden Wellness Club | b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
     <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
   </div>
 
   <h2 class="main-heading">MD Expo 2026 Entry Form</h2>
 
-  <!-- PRINT ONLY HEADER (LOGO TOP RIGHT) -->
+  <!-- PRINT ONLY HEADER (MATCHING REFERENCE IMAGE 2 WITHOUT "RESULTS") -->
   <div class="print-only print-header">
     <div class="brand-text-area">
-      <div class="brand-korean">백투에덴 건강 동우회</div>
-      <div class="brand-english">BACK-TO-EDEN WELLNESS CLUB</div>
-      <div class="brand-sub">MD Expo 2026 Health Data Report | <span id="print-date"></span></div>
+      <div class="print-main-title">MD Expo 2026 Health Data</div>
+      <div class="brand-sub">Provided by Back-To-Eden Wellness Club</div>
+      <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
     <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
   </div>
@@ -430,12 +414,6 @@
   
   <div id="status" class="no-print"></div>
 
-  <!-- PRINT FOOTER & BRANDING -->
-  <div class="print-only print-footer">
-    <div style="font-weight: bold;">백투에덴 건강 동우회 | BACK-TO-EDEN WELLNESS CLUB</div>
-    <div>Results Provided by Back-To-Eden Wellness Club | b2e.wsk.church | b2ewellness@gmail.com</div>
-  </div>
-
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
@@ -452,8 +430,6 @@
     }
 
     function initApp() {
-      document.getElementById("print-date").innerText = "Printed on: " + new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-
       showStatus("Loading system...", "loading");
       fetchAPI({ action: "getFormStructure" }, function(res) {
         formStructure = res.data;
@@ -494,7 +470,6 @@
       const select = document.getElementById("visitor-select");
       if (select.value === "new") {
         clearForm();
-        // Focus the name input field directly (Row 3 corresponds to name)
         const nameInput = document.getElementById("row_3");
         if (nameInput) nameInput.focus();
       } else {
@@ -607,62 +582,4 @@
       const colIndex = select.value;
       
       if (!colIndex) {
-        alert("Please select a visitor or 'Add New Visitor'.");
-        return;
-      }
-
-      const values = {};
-      document.querySelectorAll("#metrics-container input").forEach(input => {
-        values[input.dataset.rowIndex] = input.value;
-      });
-
-      showStatus("Saving data to Spreadsheet and Drive...", "loading");
-      document.getElementById("save-btn").disabled = true;
-
-      fetchAPI({ 
-        action: "saveVisitorData", 
-        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
-      }, function(res) {
-        showStatus(res.message || res.data.message, "success");
-        document.getElementById("save-btn").disabled = false;
-        
-        if (colIndex === "new") {
-          document.getElementById("visitor-search").value = "";
-          loadVisitorDropdown(); 
-        }
-      });
-    }
-
-    function fetchAPI(data, onSuccess) {
-      fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(res => {
-        if (res.status === "success") onSuccess(res);
-        else {
-          showStatus("Error: " + res.message, "error");
-          document.getElementById("save-btn").disabled = false;
-        }
-      })
-      .catch(err => {
-        showStatus("Network Error: " + err.message, "error");
-        document.getElementById("save-btn").disabled = false;
-      });
-    }
-
-    function showStatus(message, type) {
-      const statusDiv = document.getElementById("status");
-      statusDiv.style.display = "block";
-      statusDiv.className = "status-" + type;
-      statusDiv.innerText = message;
-    }
-
-    function hideStatus() {
-      document.getElementById("status").style.display = "none";
-    }
-  </script>
-</body>
-</html>
+        alert("Please select a visitor
