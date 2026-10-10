@@ -246,12 +246,12 @@
     .print-only { display: none; }
 
     /* =========================================
-       TWO-COLUMN PRINT PDF STYLING (REDUCED BY 50%)
+       TWO-COLUMN PRINT PDF STYLING (REDUCED FONTS TO FIT ONE PAGE)
        ========================================= */
     @media print {
       @page {
         size: letter portrait;
-        margin: 5mm;
+        margin: 4mm;
       }
       body {
         background: white;
@@ -259,7 +259,7 @@
         margin: 0;
         max-width: 100%;
         color: #000;
-        font-size: 8pt;
+        font-size: 6.5pt;
       }
       .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
         display: none !important;
@@ -273,8 +273,8 @@
         align-items: center !important;
         background: #ffffff;
         border-bottom: 2px solid #1a5276;
-        padding-bottom: 6px;
-        margin-bottom: 8px;
+        padding-bottom: 4px;
+        margin-bottom: 5px;
         width: 100%;
         box-sizing: border-box;
       }
@@ -283,33 +283,33 @@
         width: 100%;
       }
       .print-header .print-main-title {
-        font-size: 11pt;
+        font-size: 9.5pt;
         font-weight: bold;
         color: #1a5276;
-        line-height: 1.1;
+        line-height: 1.0;
       }
       .print-header .print-sub-line {
-        font-size: 7.5pt;
+        font-size: 6pt;
         color: #333;
         margin-top: 1px;
-        line-height: 1.1;
+        line-height: 1.0;
       }
       .print-header .print-club-line {
-        font-size: 7.5pt;
+        font-size: 6pt;
         font-weight: bold;
         color: #1a5276;
         margin-top: 1px;
-        line-height: 1.1;
+        line-height: 1.0;
       }
       .print-header .print-email-line {
-        font-size: 7pt;
+        font-size: 5.5pt;
         color: #555;
         margin-top: 1px;
-        line-height: 1.1;
+        line-height: 1.0;
       }
       .print-logo-img {
-        max-height: 38px;
-        max-width: 100px;
+        max-height: 30px;
+        max-width: 80px;
         width: auto;
         height: auto;
         object-fit: contain;
@@ -317,34 +317,34 @@
       }
       
       #metrics-container {
-        gap: 3px;
-        margin-bottom: 4px;
+        gap: 2px;
+        margin-bottom: 2px;
       }
       .booth-section {
         background: none !important;
         border: none !important;
         padding: 0 !important;
-        margin-bottom: 2px;
+        margin-bottom: 1px;
         box-shadow: none !important;
         page-break-inside: avoid;
       }
       .booth-header {
-        font-size: 8.5pt;
+        font-size: 7pt;
         font-weight: bold;
         color: #1a5276 !important;
         border-bottom: 1px solid #1a5276;
         padding-bottom: 1px;
-        margin-bottom: 2px;
-        margin-top: 2px;
+        margin-bottom: 1px;
+        margin-top: 1px;
       }
       /* TWO-COLUMN GRID FOR PRINT */
       .booth-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px 8px !important;
+        gap: 1px 6px !important;
       }
       .form-group {
-        border-bottom: 1px dotted #ccc !important;
+        border-bottom: 1px dotted #ddd !important;
         padding: 1px 0 !important;
         display: flex;
         flex-direction: row;
@@ -353,20 +353,21 @@
       }
       .label-row {
         margin-bottom: 0;
-        width: 68%;
+        width: 70%;
       }
       .form-group label {
-        font-size: 7.2pt;
+        font-size: 6pt;
         font-weight: normal;
         color: #000;
+        line-height: 1.0;
       }
       .form-group input {
         border: none !important;
         background: transparent !important;
         text-align: right;
         font-weight: bold;
-        font-size: 7.8pt;
-        width: 30% !important;
+        font-size: 6.5pt;
+        width: 28% !important;
         padding: 0;
       }
     }
