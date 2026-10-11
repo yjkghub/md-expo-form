@@ -338,28 +338,34 @@
       const rawFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
-      const existingIframe = document.getElementById('print-iframe');
-      if (existingIframe) existingIframe.remove();
+      const logoImg = document.querySelector('.brand-logo-img');
+      let logoHtmlTag = '';
+      if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = logoImg.naturalWidth;
+          canvas.height = logoImg.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(logoImg, 0, 0);
+          logoHtmlTag = `<img src="${canvas.toDataURL('image/png')}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">`;
+        } catch (e) {}
+      }
 
-      const iframe = document.createElement('iframe');
-      iframe.id = 'print-iframe';
-      iframe.style.position = 'fixed';
-      iframe.style.right = '0';
-      iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      document.body.appendChild(iframe);
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert("Popup blocked! Please allow popups for this site to print.");
+        return;
+      }
 
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(`
+      printWindow.document.open();
+      printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
+          <meta charset="UTF-8">
           <title>${pdfFilename}</title>
           <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 0; margin: 0; color: #000; font-size: 12pt; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 10px; margin: 0; color: #000; font-size: 12pt; }
             @page { size: letter portrait; margin: 4mm; }
             .print-header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
             .brand-text-area { text-align: center; width: 100%; }
@@ -367,7 +373,6 @@
             .print-sub-line { font-size: 9.5pt; color: #333; margin-top: 1px; line-height: 1.0; }
             .print-club-line { font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px; line-height: 1.0; }
             .print-email-line { font-size: 9pt; color: #555; margin-top: 1px; line-height: 1.0; }
-            .print-logo-img { max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end; }
             #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
             .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
             .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
@@ -388,7 +393,7 @@
               <div class="print-club-line">백투에덴 건강 동우회</div>
               <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
             </div>
-            <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+            ${logoHtmlTag}
           </div>
           <div id="metrics-container">
             ${document.getElementById('metrics-container').innerHTML}
@@ -397,16 +402,15 @@
             window.onload = function() {
               setTimeout(function() {
                 window.print();
-              }, 350);
+              }, 400);
             };
           <\/script>
         </body>
         </html>
       `);
-      doc.close();
+      printWindow.document.close();
     }
 
-    // Fast Spreadsheet Save (No Drive processing)
     function saveData() {
       const select = document.getElementById("visitor-select");
       const colIndex = select.value;
@@ -454,10 +458,9 @@
       });
     }
 
-    // Protected Google Drive Archiving Button
     function saveToDrivePrompt() {
       const adminPwd = prompt("🔒 Enter Admin Password to save reports to Google Drive:");
-      if (adminPwd !== "ExpoAdmin2026") { // You can change this admin password as desired
+      if (adminPwd !== "ExpoAdmin2026") {
         if (adminPwd !== null) alert("Incorrect admin password.");
         return;
       }
