@@ -255,8 +255,10 @@
     <div class="auth-box">
       <h3>MD Expo 2026 Portal</h3>
       <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
-      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') checkPassword()">
-      <button onclick="checkPassword()">Access Portal</button>
+      <form onsubmit="event.preventDefault(); checkPassword();">
+        <input type="password" id="password-input" placeholder="Password" autofocus>
+        <button type="submit">Access Portal</button>
+      </form>
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
     </div>
   </div>
@@ -433,4 +435,250 @@
             #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
             .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
             .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
-            .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px
+            .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
+            .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+            .label-row { margin-bottom: 0; width: 100%; }
+            .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
+            .form-group input { border: none !important; background: transparent !important; text-align: right; font-weight: bold; font-size: 12.5pt; width: 35% !important; padding: 0; }
+            .recorded-badge { display: none !important; }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div class="brand-text-area">
+              <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+              <div class="print-sub-line">Printed on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+              <div class="print-club-line">Back-To-Eden Wellness Club</div>
+              <div class="print-club-line">백투에덴 건강 동우회</div>
+              <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
+            </div>
+            <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+          </div>
+          <div id="metrics-container">
+            ${document.getElementById('metrics-container').innerHTML}
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 350);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      doc.close();
+    }
+
+    function initApp() {
+      showStatus("Loading system...", "loading");
+      fetchAPI({ action: "getFormStructure" }, function(res) {
+        formStructure = res.data;
+        buildForm();
+        loadVisitorDropdown();
+      });
+    }
+
+    function loadVisitorDropdown() {
+      fetchAPI({ action: "getVisitorList" }, function(res) {
+        allVisitors = res.data;
+        populateDropdown(allVisitors);
+        hideStatus();
+      });
+    }
+
+    function populateDropdown(visitors) {
+      const select = document.getElementById("visitor-select");
+      const currentValue = select.value;
+      select.options.length = 2; 
+      
+      visitors.forEach(v => {
+        let opt = document.createElement("option");
+        opt.value = v.colIndex;
+        opt.text = v.label;
+        select.appendChild(opt);
+      });
+      select.value = currentValue;
+    }
+
+    function filterVisitorDropdown() {
+      const query = document.getElementById("visitor-search").value.toLowerCase();
+      const filtered = allVisitors.filter(v => v.label.toLowerCase().includes(query));
+      populateDropdown(filtered);
+    }
+
+    function handleVisitorChange() {
+      const select = document.getElementById("visitor-select");
+      if (select.value === "new") {
+        clearForm();
+        const nameInput = document.getElementById("row_3");
+        if (nameInput) nameInput.focus();
+      } else {
+        if (select.value) loadVisitorData();
+      }
+    }
+
+    function buildForm() {
+      const container = document.getElementById("metrics-container");
+      container.innerHTML = "";
+      
+      const groups = {};
+      let lastBooth = "General Information";
+
+      formStructure.forEach((metric, index) => {
+        let displayIdx = index + 1;
+        
+        if (metric.booth && metric.booth.toString().trim() !== "") {
+          let bVal = metric.booth.toString().trim();
+          lastBooth = bVal.toLowerCase().includes("booth") || bVal.toLowerCase().includes("general") ? bVal : "Booth " + bVal;
+        }
+        
+        if (!groups[lastBooth]) groups[lastBooth] = [];
+        groups[lastBooth].push({ ...metric, displayIndex: displayIdx });
+      });
+
+      for (const [booth, metrics] of Object.entries(groups)) {
+        const section = document.createElement("div");
+        section.className = "booth-section";
+        
+        const header = document.createElement("h3");
+        header.className = "booth-header";
+        header.innerText = booth;
+        section.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "booth-grid";
+        
+        metrics.forEach(metric => {
+          const div = document.createElement("div");
+          div.className = "form-group";
+          
+          const labelRow = document.createElement("div");
+          labelRow.className = "label-row";
+          
+          const label = document.createElement("label");
+          label.innerText = `${metric.displayIndex} - ${metric.name}` + (metric.device ? ` (${metric.device})` : "");
+          
+          const badge = document.createElement("span");
+          badge.className = "recorded-badge";
+          badge.id = "badge_" + metric.rowIndex;
+          badge.innerText = "✓ Recorded";
+          
+          labelRow.appendChild(label);
+          labelRow.appendChild(badge);
+          
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = "row_" + metric.rowIndex;
+          input.dataset.rowIndex = metric.rowIndex;
+          input.oninput = function() { checkInputRecorded(this, metric.rowIndex); };
+          
+          div.appendChild(labelRow);
+          div.appendChild(input);
+          grid.appendChild(div);
+        });
+        
+        section.appendChild(grid);
+        container.appendChild(section);
+      }
+    }
+
+    function checkInputRecorded(inputElement, rowIndex) {
+      const badge = document.getElementById("badge_" + rowIndex);
+      if (inputElement.value.trim() !== "") {
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    function clearForm() {
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        input.value = "";
+        input.dispatchEvent(new Event('input'));
+      });
+    }
+
+    function loadVisitorData() {
+      const colIndex = document.getElementById("visitor-select").value;
+      if (!colIndex || colIndex === "new") return;
+
+      showStatus("Loading visitor data...", "loading");
+      fetchAPI({ action: "getVisitorData", payload: { colIndex: colIndex } }, function(res) {
+        clearForm();
+        for (let rowIndex in res.data) {
+          let input = document.getElementById("row_" + rowIndex);
+          if (input) {
+            input.value = res.data[rowIndex];
+            input.dispatchEvent(new Event('input'));
+          }
+        }
+        showStatus("Data loaded successfully.", "success");
+        setTimeout(hideStatus, 2000);
+      });
+    }
+
+    function saveData() {
+      const select = document.getElementById("visitor-select");
+      const colIndex = select.value;
+      
+      if (!colIndex) {
+        alert("Please select a visitor or 'Add New Visitor'.");
+        return;
+      }
+
+      const values = {};
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        values[input.dataset.rowIndex] = input.value;
+      });
+
+      showStatus("Saving data to Spreadsheet and Drive...", "loading");
+      document.getElementById("save-btn").disabled = true;
+
+      fetchAPI({ 
+        action: "saveVisitorData", 
+        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
+      }, function(res) {
+        showStatus(res.message || res.data.message, "success");
+        document.getElementById("save-btn").disabled = false;
+        
+        if (colIndex === "new") {
+          document.getElementById("visitor-search").value = "";
+          loadVisitorDropdown(); 
+        }
+      });
+    }
+
+    function fetchAPI(data, onSuccess) {
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(res => {
+        if (res.status === "success") onSuccess(res);
+        else {
+          showStatus("Error: " + res.message, "error");
+          document.getElementById("save-btn").disabled = false;
+        }
+      })
+      .catch(err => {
+        showStatus("Network Error: " + err.message, "error");
+        document.getElementById("save-btn").disabled = false;
+      });
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById("status");
+      statusDiv.style.display = "block";
+      statusDiv.className = "status-" + type;
+      statusDiv.innerText = message;
+    }
+
+    function hideStatus() {
+      document.getElementById("status").style.display = "none";
+    }
+  </script>
+</body>
+</html>
