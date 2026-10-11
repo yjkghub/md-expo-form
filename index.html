@@ -405,7 +405,23 @@
       const colIndex = select.value;
       
       if (!colIndex) {
-        alert("Please select a visitor or 'Add New Visitor'.");
+        alert("Please select a visitor or choose '+ Add New Visitor' from the dropdown.");
+        return;
+      }
+
+      // SAFETY CHECK: Ensure Serial Number (Row 2) and Name (Row 3) are provided before saving
+      const snInput = document.getElementById("row_2");
+      const nameInput = document.getElementById("row_3");
+
+      if (!snInput || snInput.value.trim() === "") {
+        alert("Safety Check: Serial Number cannot be empty!");
+        if (snInput) snInput.focus();
+        return;
+      }
+
+      if (!nameInput || nameInput.value.trim() === "") {
+        alert("Safety Check: Visitor Name cannot be empty!");
+        if (nameInput) nameInput.focus();
         return;
       }
 
