@@ -406,15 +406,17 @@
         values[input.dataset.rowIndex] = input.value;
       });
 
-      showStatus("Saving data & archiving reports to Google Drive...", "loading");
+      showStatus("Saving data & archiving reports (Text + PDF) to Google Drive...", "loading");
       document.getElementById("save-btn").disabled = true;
 
+      // 1. Save data to Spreadsheet AND create text file on Google Drive
       fetchAPI({ 
         action: "saveVisitorData", 
         payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
       }, function(res) {
         const updatedColIndex = res.data.colIndex || colIndex;
         
+        // 2. Automatically generate matching PDF report and upload to Google Drive
         generateAndUploadPdf(updatedColIndex, function() {
           showStatus(res.data.message || res.message, "success");
           document.getElementById("save-btn").disabled = false;
@@ -449,15 +451,17 @@
       const logoImg = document.querySelector('.brand-logo-img');
       
       function sendHtmlToBackend(logoDataUrl) {
-        const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; object-fit: contain; justify-self: end;">` : '';
+        const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">` : '';
 
+        // Exact same narrow 4mm margin and two-column grid styling as local print
         const htmlPayload = `
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
             <style>
-              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 10px; margin: 0; color: #000; font-size: 12pt; }
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 0; margin: 0; color: #000; font-size: 12pt; }
+              @page { size: letter portrait; margin: 4mm; }
               .print-header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
               .brand-text-area { text-align: center; width: 100%; }
               .print-main-title { font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0; }
@@ -480,7 +484,8 @@
               <div class="brand-text-area">
                 <div class="print-main-title">MD Expo 2026 Health Data Report</div>
                 <div class="print-sub-line">Saved on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
-                <div class="print-club-line">Back-To-Eden Wellness Club | 백투에덴 건강 동우회</div>
+                <div class="print-club-line">Back-To-Eden Wellness Club</div>
+                <div class="print-club-line">백투에덴 건강 동우회</div>
                 <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
               </div>
               ${logoHtmlTag}
