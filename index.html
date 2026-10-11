@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD Expo 2026 - Health Data Form</title>
+  <!-- HTML2PDF.js Library for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -309,13 +311,12 @@
       }
     }
 
+    // Local physical print trigger
     function triggerPrint() {
-      // 1. Sync input values into attributes so they render in the iframe print document
       document.querySelectorAll("#metrics-container input").forEach(input => {
         input.setAttribute('value', input.value);
       });
 
-      // Gather visitor info for clean filename formatting with 3-digit zero-padded numbering (e.g. 005_홍길동_MD_Expo_2026.pdf)
       const visitorSelect = document.getElementById("visitor-select");
       const selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex] ? visitorSelect.options[visitorSelect.selectedIndex].text : "Visitor";
       
@@ -326,7 +327,6 @@
       const rawFilename = `${paddedSerial}_${cleanVisitorName}_MD_Expo_2026.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
-      // 2. Open hidden iframe for physical/local printing
       const existingIframe = document.getElementById('print-iframe');
       if (existingIframe) existingIframe.remove();
 
@@ -393,16 +393,141 @@
         </html>
       `);
       doc.close();
+    }
 
-      // 3. Send the complete document payload to Google Drive via backend
-      fetchAPI({
-        action: "savePrintPdf",
-        payload: { 
-          htmlContent: doc.documentElement.outerHTML, 
-          filename: pdfFilename 
-        }
+    // Automatic background save for Spreadsheet + Text file + PDF Archive
+    function saveData() {
+      const select = document.getElementById("visitor-select");
+      const colIndex = select.value;
+      
+      if (!colIndex) {
+        alert("Please select a visitor or 'Add New Visitor'.");
+        return;
+      }
+
+      const values = {};
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        values[input.dataset.rowIndex] = input.value;
+      });
+
+      showStatus("Saving data & archiving reports to Google Drive...", "loading");
+      document.getElementById("save-btn").disabled = true;
+
+      // 1. Save data to Spreadsheet and generate Text report on Drive
+      fetchAPI({ 
+        action: "saveVisitorData", 
+        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
       }, function(res) {
-        console.log("Print report payload successfully dispatched to Google Drive!");
+        const updatedColIndex = res.data.colIndex || colIndex;
+        
+        // 2. Automatically generate formatted PDF in background and upload to Drive
+        generateAndUploadPdf(updatedColIndex, function() {
+          showStatus(res.data.message || res.message, "success");
+          document.getElementById("save-btn").disabled = false;
+          
+          if (colIndex === "new") {
+            document.getElementById("visitor-search").value = "";
+            loadVisitorDropdown(); 
+          }
+        });
+      });
+    }
+
+    function generateAndUploadPdf(colIndex, onComplete) {
+      const visitorSelect = document.getElementById("visitor-select");
+      let selectedOptionText = "Visitor";
+      for (let i = 0; i < visitorSelect.options.length; i++) {
+        if (visitorSelect.options[i].value == colIndex) {
+          selectedOptionText = visitorSelect.options[i].text;
+          break;
+        }
+      }
+      
+      const paddedSerial = String(colIndex).padStart(3, '0');
+      const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
+      const rawFilename = `${paddedSerial}_${cleanVisitorName}_MD_Expo_2026.pdf`;
+      const pdfFilename = rawFilename.replace(/_+/g, "_");
+
+      const printContainer = document.createElement('div');
+      printContainer.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+      printContainer.style.background = "white";
+      printContainer.style.padding = "10px";
+      printContainer.style.color = "#000";
+      printContainer.style.fontSize = "12pt";
+      printContainer.style.width = "750px";
+      printContainer.style.position = "fixed";
+      printContainer.style.left = "-9999px";
+      printContainer.style.top = "0";
+
+      const liveInputs = document.querySelectorAll('#metrics-container input');
+      const inputValuesMap = {};
+      liveInputs.forEach(inp => {
+        inputValuesMap[inp.id] = inp.value;
+      });
+
+      const clonedMetrics = document.getElementById('metrics-container').cloneNode(true);
+      clonedMetrics.querySelectorAll('input').forEach(input => {
+        const val = inputValuesMap[input.id] || "";
+        const span = document.createElement('span');
+        span.style.fontWeight = "bold";
+        span.style.fontSize = "12.5pt";
+        span.style.textAlign = "right";
+        span.style.display = "inline-block";
+        span.innerText = val;
+        input.parentNode.replaceChild(span, input);
+      });
+      clonedMetrics.querySelectorAll('.recorded-badge').forEach(badge => badge.remove());
+
+      const logoImg = document.querySelector('.brand-logo-img');
+      const logoSrc = logoImg && logoImg.src ? logoImg.src : '';
+
+      printContainer.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%;">
+          <div style="text-align: center; width: 100%;">
+            <div style="font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0;">MD Expo 2026 Health Data Report</div>
+            <div style="font-size: 9.5pt; color: #333; margin-top: 1px;">Saved on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+            <div style="font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px;">Back-To-Eden Wellness Club | 백투에덴 건강 동우회</div>
+            <div style="font-size: 9pt; color: #555; margin-top: 1px;">b2e.wsk.church | b2ewellness@gmail.com</div>
+          </div>
+          ${logoSrc ? `<img src="${logoSrc}" style="max-height: 40px; max-width: 100px; object-fit: contain;">` : ''}
+        </div>
+      `;
+      printContainer.appendChild(clonedMetrics);
+
+      const styleTag = document.createElement('style');
+      styleTag.innerHTML = `
+        #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
+        .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
+        .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
+        .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
+        .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+        .label-row { margin-bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
+      `;
+      printContainer.appendChild(styleTag);
+
+      document.body.appendChild(printContainer);
+
+      html2pdf().from(printContainer).set({
+        margin: 10,
+        filename: pdfFilename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).outputPdf('datauristring').then(function(pdfDataUri) {
+        printContainer.remove();
+        const base64Data = pdfDataUri.split(',')[1];
+
+        fetchAPI({
+          action: "savePrintPdf",
+          payload: { base64Data: base64Data, filename: pdfFilename }
+        }, function(res) {
+          if (typeof onComplete === 'function') onComplete();
+        });
+      }).catch(err => {
+        printContainer.remove();
+        console.error("Background PDF Generation Error: ", err);
+        if (typeof onComplete === 'function') onComplete();
       });
     }
 
@@ -551,37 +676,6 @@
         }
         showStatus("Data loaded successfully.", "success");
         setTimeout(hideStatus, 2000);
-      });
-    }
-
-    function saveData() {
-      const select = document.getElementById("visitor-select");
-      const colIndex = select.value;
-      
-      if (!colIndex) {
-        alert("Please select a visitor or 'Add New Visitor'.");
-        return;
-      }
-
-      const values = {};
-      document.querySelectorAll("#metrics-container input").forEach(input => {
-        values[input.dataset.rowIndex] = input.value;
-      });
-
-      showStatus("Saving data to Spreadsheet and Drive...", "loading");
-      document.getElementById("save-btn").disabled = true;
-
-      fetchAPI({ 
-        action: "saveVisitorData", 
-        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
-      }, function(res) {
-        showStatus(res.message || res.data.message, "success");
-        document.getElementById("save-btn").disabled = false;
-        
-        if (colIndex === "new") {
-          document.getElementById("visitor-search").value = "";
-          loadVisitorDropdown(); 
-        }
       });
     }
 
