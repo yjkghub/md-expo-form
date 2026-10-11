@@ -612,8 +612,15 @@
       const select = document.getElementById("visitor-select");
       if (select.value === "new") {
         clearForm();
-        const nameInput = document.getElementById("row_3");
-        if (nameInput) nameInput.focus();
+        fetchAPI({ action: "getNextAvailableSerial" }, function(res) {
+          const snInput = document.getElementById("row_2");
+          if (snInput) {
+            snInput.value = res.data;
+            snInput.dispatchEvent(new Event('input'));
+          }
+          const nameInput = document.getElementById("row_3");
+          if (nameInput) nameInput.focus();
+        });
       } else {
         if (select.value) loadVisitorData();
       }
