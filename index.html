@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD Expo 2026 - Health Data Form</title>
-  <!-- HTML2PDF.js Library for PDF Generation -->
+  <!-- HTML2PDF.js Library for PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
@@ -167,3 +167,623 @@
     /* SINGLE COLUMN SCREEN VIEW */
     #metrics-container {
       display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    .booth-section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .booth-header {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #1a5276;
+      font-size: 1.2em;
+      font-weight: bold;
+      border-bottom: 2px solid #ebf5fb;
+      padding-bottom: 8px;
+    }
+    .booth-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    /* FORM CARD & RECORDED BADGE */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #2d3748;
+    }
+    .recorded-badge {
+      background-color: #d4efdf;
+      color: #145a32;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      display: none;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+      background: #f8f9fa;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #2980b9;
+      background: #fff;
+    }
+
+    #status {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      white-space: pre-wrap; 
+      display: none;
+    }
+    .status-success { background: #d4efdf; color: #145a32; border: 1px solid #a9dfbf; }
+    .status-error { background: #fadbd8; color: #78281f; border: 1px solid #f5b7b1; }
+    .status-loading { background: #ebf5fb; color: #1a5276; border: 1px solid #aed6f1; }
+
+    .print-only { display: none; }
+
+    /* =========================================
+        TWO-COLUMN PRINT PDF STYLING (MAXIMIZED SENIOR SIZING)
+        ========================================= */
+    @media print {
+      @page {
+        size: letter portrait;
+        margin: 4mm;
+      }
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+        color: #000;
+        font-size: 12pt;
+      }
+      .no-print, .header-controls, #save-btn, #status, .main-heading, .recorded-badge, #auth-overlay {
+        display: none !important;
+      }
+      .print-only { display: block !important; }
+      
+      /* STRICT GRID CONTAINER FOR TOP RIGHT LOGO ALIGNMENT */
+      .print-header {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        align-items: center !important;
+        background: #ffffff;
+        border-bottom: 2px solid #1a5276;
+        padding-bottom: 5px;
+        margin-bottom: 6px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .print-header .brand-text-area {
+        text-align: center;
+        width: 100%;
+      }
+      .print-header .print-main-title {
+        font-size: 16pt;
+        font-weight: bold;
+        color: #1a5276;
+        line-height: 1.0;
+      }
+      .print-header .print-sub-line {
+        font-size: 9.5pt;
+        color: #333;
+        margin-top: 1px;
+        line-height: 1.0;
+      }
+      .print-header .print-club-line {
+        font-size: 9.5pt;
+        font-weight: bold;
+        color: #1a5276;
+        margin-top: 1px;
+        line-height: 1.0;
+      }
+      .print-header .print-email-line {
+        font-size: 9pt;
+        color: #555;
+        margin-top: 1px;
+        line-height: 1.0;
+      }
+      .print-logo-img {
+        max-height: 40px;
+        max-width: 100px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        justify-self: end;
+      }
+      
+      #metrics-container {
+        gap: 2px;
+        margin-bottom: 3px;
+      }
+      .booth-section {
+        margin-bottom: 2px;
+        page-break-inside: avoid;
+      }
+      .booth-header {
+        font-size: 11.5pt;
+        font-weight: bold;
+        color: #1a5276 !important;
+        border-bottom: 1px solid #1a5276;
+        padding-bottom: 1px;
+        margin-bottom: 1px;
+        margin-top: 1px;
+      }
+      /* TWO-COLUMN GRID FOR PRINT */
+      .booth-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1px 8px !important;
+      }
+      .form-group {
+        border-bottom: 1px dotted #ccc !important;
+        padding: 1px 0 !important;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .label-row {
+        margin-bottom: 0;
+        width: 100%;
+      }
+      .form-group label {
+        font-size: 11.5pt;
+        font-weight: normal;
+        color: #000;
+        line-height: 1.0;
+      }
+      .form-group input {
+        border: none !important;
+        background: transparent !important;
+        text-align: right;
+        font-weight: bold;
+        font-size: 12.5pt;
+        width: 35% !important;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PASSWORD PROTECTION OVERLAY -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h3>MD Expo 2026 Portal</h3>
+      <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
+      <form onsubmit="event.preventDefault(); checkPassword();">
+        <input type="password" id="password-input" placeholder="Password" autofocus>
+        <button type="submit">Access Portal</button>
+      </form>
+      <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- TOP BRANDING HEADER (SCREEN) -->
+  <div class="top-brand-header no-print">
+    <div class="brand-text-area">
+      <div class="brand-korean">백투에덴 건강 동우회</div>
+      <div class="brand-english">BACK-TO-EDEN WELLNESS CLUB</div>
+      <div class="brand-sub">b2e.wsk.church | b2ewellness@gmail.com</div>
+    </div>
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+  </div>
+
+  <h2 class="main-heading">MD Expo 2026 Health Data Entry Form</h2>
+
+  <!-- PRINT ONLY HEADER -->
+  <div class="print-only print-header">
+    <div class="brand-text-area">
+      <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+      <div class="print-sub-line" id="print-date"></div>
+      <div class="print-club-line">Back-To-Eden Wellness Club</div>
+      <div class="print-club-line">백투에덴 건강 동우회</div>
+      <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
+    </div>
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+  </div>
+
+  <!-- CONTROL PANEL -->
+  <div class="header-controls no-print">
+    <label class="control-label">Search or Select Visitor</label>
+    <input type="text" id="visitor-search" class="search-input-box" placeholder="🔍 Type SN or Name to search..." oninput="filterVisitorDropdown()">
+    
+    <select id="visitor-select" onchange="handleVisitorChange()">
+      <option value="">-- Select or Add New Visitor --</option>
+      <option value="new">+ Add New Visitor</option>
+    </select>
+    
+    <div class="button-container">
+      <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Retrieve / Save / Update Measurements</button>
+      <button class="btn-action btn-print" onclick="triggerPrint()">🖨️ Print Result</button>
+    </div>
+  </div>
+
+  <!-- METRICS CONTAINER -->
+  <div id="metrics-container"></div>
+  
+  <div id="status" class="no-print"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
+    let formStructure = [];
+    let allVisitors = [];
+
+    function triggerPrint() {
+      // Sync input values into attributes so they render in the iframe print document
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        input.setAttribute('value', input.value);
+      });
+
+      // Gather visitor info for PDF naming
+      const visitorSelect = document.getElementById("visitor-select");
+      const selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex] ? visitorSelect.options[visitorSelect.selectedIndex].text : "Visitor";
+      const serialNumber = visitorSelect.value && visitorSelect.value !== "new" ? visitorSelect.value : "000";
+      const cleanVisitorName = selectedOptionText.replace(/[^a-zA-Z0-9가-힣]/g, "_");
+      const pdfFilename = serialNumber + "_" + cleanVisitorName + "_MD_Expo_2026.pdf";
+
+      // 1. Automatically generate PDF and send to Google Drive folder via Apps Script
+      const printContainer = document.createElement('div');
+      printContainer.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+      printContainer.style.background = "white";
+      printContainer.style.padding = "10px";
+      printContainer.style.color = "#000";
+      printContainer.style.fontSize = "12pt";
+      printContainer.style.width = "750px";
+
+      printContainer.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px;">
+          <div style="text-align: center; width: 100%;">
+            <div style="font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0;">MD Expo 2026 Health Data Report</div>
+            <div style="font-size: 9.5pt; color: #333; margin-top: 1px;">Printed on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+            <div style="font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px;">Back-To-Eden Wellness Club | 백투에덴 건강 동우회</div>
+            <div style="font-size: 9pt; color: #555; margin-top: 1px;">b2e.wsk.church | b2ewellness@gmail.com</div>
+          </div>
+        </div>
+        <div>${document.getElementById('metrics-container').innerHTML}</div>
+      `;
+
+      // Sync input values inside the cloned container for html2pdf
+      const clonedInputs = printContainer.querySelectorAll("input");
+      const originalInputs = document.querySelectorAll("#metrics-container input");
+      clonedInputs.forEach((inp, idx) => {
+        if (originalInputs[idx]) inp.value = originalInputs[idx].value;
+      });
+
+      html2pdf().from(printContainer).set({
+        margin: 10,
+        filename: pdfFilename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).outputPdf('datauristring').then(function(pdfDataUri) {
+        var base64Data = pdfDataUri.split(',')[1];
+        google.script.run
+          .withSuccessHandler(function(url) {
+            console.log("PDF successfully saved to Google Drive: " + url);
+          })
+          .withFailureHandler(function(err) {
+            console.error("Drive PDF save failed: " + err.message);
+          })
+          .savePrintPdfToDrive(base64Data, pdfFilename);
+      });
+
+      // 2. Remove any existing print iframe
+      const existingIframe = document.getElementById('print-iframe');
+      if (existingIframe) existingIframe.remove();
+
+      // Create hidden iframe for bulletproof mobile/Android rendering
+      const iframe = document.createElement('iframe');
+      iframe.id = 'print-iframe';
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>MD Expo 2026 - Health Data Report</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 0; margin: 0; color: #000; font-size: 12pt; }
+            @page { size: letter portrait; margin: 4mm; }
+            .print-header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
+            .brand-text-area { text-align: center; width: 100%; }
+            .print-main-title { font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0; }
+            .print-sub-line { font-size: 9.5pt; color: #333; margin-top: 1px; line-height: 1.0; }
+            .print-club-line { font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px; line-height: 1.0; }
+            .print-email-line { font-size: 9pt; color: #555; margin-top: 1px; line-height: 1.0; }
+            .print-logo-img { max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end; }
+            #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
+            .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
+            .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
+            .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
+            .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+            .label-row { margin-bottom: 0; width: 100%; }
+            .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
+            .form-group input { border: none !important; background: transparent !important; text-align: right; font-weight: bold; font-size: 12.5pt; width: 35% !important; padding: 0; }
+            .recorded-badge { display: none !important; }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div class="brand-text-area">
+              <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+              <div class="print-sub-line">Printed on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+              <div class="print-club-line">Back-To-Eden Wellness Club</div>
+              <div class="print-club-line">백투에덴 건강 동우회</div>
+              <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
+            </div>
+            <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+          </div>
+          <div id="metrics-container">
+            ${document.getElementById('metrics-container').innerHTML}
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 350);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      doc.close();
+    }
+
+    function checkPassword() {
+      const pwd = document.getElementById("password-input").value;
+      if (pwd === "Expo2026") {
+        document.getElementById("auth-overlay").style.display = "none";
+        initApp();
+      } else {
+        document.getElementById("auth-error").style.display = "block";
+      }
+    }
+
+    function initApp() {
+      showStatus("Loading system...", "loading");
+      fetchAPI({ action: "getFormStructure" }, function(res) {
+        formStructure = res.data;
+        buildForm();
+        loadVisitorDropdown();
+      });
+    }
+
+    function loadVisitorDropdown() {
+      fetchAPI({ action: "getVisitorList" }, function(res) {
+        allVisitors = res.data;
+        populateDropdown(allVisitors);
+        hideStatus();
+      });
+    }
+
+    function populateDropdown(visitors) {
+      const select = document.getElementById("visitor-select");
+      const currentValue = select.value;
+      select.options.length = 2; 
+      
+      visitors.forEach(v => {
+        let opt = document.createElement("option");
+        opt.value = v.colIndex;
+        opt.text = v.label;
+        select.appendChild(opt);
+      });
+      select.value = currentValue;
+    }
+
+    function filterVisitorDropdown() {
+      const query = document.getElementById("visitor-search").value.toLowerCase();
+      const filtered = allVisitors.filter(v => v.label.toLowerCase().includes(query));
+      populateDropdown(filtered);
+    }
+
+    function handleVisitorChange() {
+      const select = document.getElementById("visitor-select");
+      if (select.value === "new") {
+        clearForm();
+        const nameInput = document.getElementById("row_3");
+        if (nameInput) nameInput.focus();
+      } else {
+        if (select.value) loadVisitorData();
+      }
+    }
+
+    function buildForm() {
+      const container = document.getElementById("metrics-container");
+      container.innerHTML = "";
+      
+      const groups = {};
+      let lastBooth = "General Information";
+
+      formStructure.forEach((metric, index) => {
+        let displayIdx = index + 1;
+        
+        if (metric.booth && metric.booth.toString().trim() !== "") {
+          let bVal = metric.booth.toString().trim();
+          lastBooth = bVal.toLowerCase().includes("booth") || bVal.toLowerCase().includes("general") ? bVal : "Booth " + bVal;
+        }
+        
+        if (!groups[lastBooth]) groups[lastBooth] = [];
+        groups[lastBooth].push({ ...metric, displayIndex: displayIdx });
+      });
+
+      for (const [booth, metrics] of Object.entries(groups)) {
+        const section = document.createElement("div");
+        section.className = "booth-section";
+        
+        const header = document.createElement("h3");
+        header.className = "booth-header";
+        header.innerText = booth;
+        section.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "booth-grid";
+        
+        metrics.forEach(metric => {
+          const div = document.createElement("div");
+          div.className = "form-group";
+          
+          const labelRow = document.createElement("div");
+          labelRow.className = "label-row";
+          
+          const label = document.createElement("label");
+          label.innerText = `${metric.displayIndex} - ${metric.name}` + (metric.device ? ` (${metric.device})` : "");
+          
+          const badge = document.createElement("span");
+          badge.className = "recorded-badge";
+          badge.id = "badge_" + metric.rowIndex;
+          badge.innerText = "✓ Recorded";
+          
+          labelRow.appendChild(label);
+          labelRow.appendChild(badge);
+          
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = "row_" + metric.rowIndex;
+          input.dataset.rowIndex = metric.rowIndex;
+          input.oninput = function() { checkInputRecorded(this, metric.rowIndex); };
+          
+          div.appendChild(labelRow);
+          div.appendChild(input);
+          grid.appendChild(div);
+        });
+        
+        section.appendChild(grid);
+        container.appendChild(section);
+      }
+    }
+
+    function checkInputRecorded(inputElement, rowIndex) {
+      const badge = document.getElementById("badge_" + rowIndex);
+      if (inputElement.value.trim() !== "") {
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    function clearForm() {
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        input.value = "";
+        input.dispatchEvent(new Event('input'));
+      });
+    }
+
+    function loadVisitorData() {
+      const colIndex = document.getElementById("visitor-select").value;
+      if (!colIndex || colIndex === "new") return;
+
+      showStatus("Loading visitor data...", "loading");
+      fetchAPI({ action: "getVisitorData", payload: { colIndex: colIndex } }, function(res) {
+        clearForm();
+        for (let rowIndex in res.data) {
+          let input = document.getElementById("row_" + rowIndex);
+          if (input) {
+            input.value = res.data[rowIndex];
+            input.dispatchEvent(new Event('input'));
+          }
+        }
+        showStatus("Data loaded successfully.", "success");
+        setTimeout(hideStatus, 2000);
+      });
+    }
+
+    function saveData() {
+      const select = document.getElementById("visitor-select");
+      const colIndex = select.value;
+      
+      if (!colIndex) {
+        alert("Please select a visitor or 'Add New Visitor'.");
+        return;
+      }
+
+      const values = {};
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        values[input.dataset.rowIndex] = input.value;
+      });
+
+      showStatus("Saving data to Spreadsheet and Drive...", "loading");
+      document.getElementById("save-btn").disabled = true;
+
+      fetchAPI({ 
+        action: "saveVisitorData", 
+        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
+      }, function(res) {
+        showStatus(res.message || res.data.message, "success");
+        document.getElementById("save-btn").disabled = false;
+        
+        if (colIndex === "new") {
+          document.getElementById("visitor-search").value = "";
+          loadVisitorDropdown(); 
+        }
+      });
+    }
+
+    function fetchAPI(data, onSuccess) {
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(res => {
+        if (res.status === "success") onSuccess(res);
+        else {
+          showStatus("Error: " + res.message, "error");
+          document.getElementById("save-btn").disabled = false;
+        }
+      })
+      .catch(err => {
+        showStatus("Network Error: " + err.message, "error");
+        document.getElementById("save-btn").disabled = false;
+      });
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById("status");
+      statusDiv.style.display = "block";
+      statusDiv.className = "status-" + type;
+      statusDiv.innerText = message;
+    }
+
+    function hideStatus() {
+      document.getElementById("status").style.display = "none";
+    }
+  </script>
+</body>
+</html>
