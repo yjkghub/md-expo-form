@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD Expo 2026 - Health Data Form</title>
-  <!-- HTML2PDF.js Library for PDF generation -->
+  <!-- HTML2PDF.js Library for PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
@@ -378,8 +378,8 @@
     <div class="auth-box">
       <h3>MD Expo 2026 Portal</h3>
       <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
-      <input type="password" id="password-input" placeholder="Password">
-      <button id="auth-btn">Access Portal</button>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Portal</button>
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
     </div>
   </div>
@@ -434,22 +434,15 @@
     let formStructure = [];
     let allVisitors = [];
 
-    // Bind password events safely on load
-    document.addEventListener("DOMContentLoaded", function() {
-      const pwdInput = document.getElementById("password-input");
-      const authBtn = document.getElementById("auth-btn");
-
-      if (pwdInput) {
-        pwdInput.addEventListener("keydown", function(event) {
-          if (event.key === "Enter") {
-            checkPassword();
-          }
-        });
+    function checkPassword() {
+      const pwd = document.getElementById("password-input").value;
+      if (pwd === "Expo2026") {
+        document.getElementById("auth-overlay").style.display = "none";
+        initApp();
+      } else {
+        document.getElementById("auth-error").style.display = "block";
       }
-      if (authBtn) {
-        authBtn.addEventListener("click", checkPassword);
-      }
-    });
+    }
 
     function triggerPrint() {
       // Sync input values into attributes so they render in the iframe print document
@@ -578,16 +571,6 @@
         </html>
       `);
       doc.close();
-    }
-
-    function checkPassword() {
-      const pwd = document.getElementById("password-input").value;
-      if (pwd === "Expo2026") {
-        document.getElementById("auth-overlay").style.display = "none";
-        initApp();
-      } else {
-        document.getElementById("auth-error").style.display = "block";
-      }
     }
 
     function initApp() {
