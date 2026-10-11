@@ -333,10 +333,17 @@
       printContainer.style.left = "-9999px";
       printContainer.style.top = "0";
 
-      // Clone metrics and convert inputs to spans to avoid blank values
+      // Grab live input values first so we can map them directly
+      const liveInputs = document.querySelectorAll('#metrics-container input');
+      const inputValuesMap = {};
+      liveInputs.forEach(inp => {
+        inputValuesMap[inp.id] = inp.value;
+      });
+
+      // Clone metrics and convert inputs to spans with explicit text values
       const clonedMetrics = document.getElementById('metrics-container').cloneNode(true);
       clonedMetrics.querySelectorAll('input').forEach(input => {
-        const val = input.value || "";
+        const val = inputValuesMap[input.id] || "";
         const span = document.createElement('span');
         span.style.fontWeight = "bold";
         span.style.fontSize = "12.5pt";
