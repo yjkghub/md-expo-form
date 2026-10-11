@@ -138,25 +138,28 @@
     }
     .button-container {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       margin-top: 10px;
     }
     
     /* COLORED BUTTONS */
     .btn-action {
       flex: 1;
-      padding: 14px 20px;
+      padding: 14px 15px;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       transition: background 0.2s;
     }
     .btn-save { background-color: #2980b9; }
     .btn-save:hover { background-color: #1a5276; }
+
+    .btn-drive { background-color: #8e44ad; }
+    .btn-drive:hover { background-color: #7d3c98; }
     
     .btn-print { background-color: #27ae60; }
     .btn-print:hover { background-color: #1e8449; }
@@ -286,10 +289,11 @@
     
     <div class="button-container">
       <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Save / Update Measurements</button>
+      <button class="btn-action btn-drive" id="drive-btn" onclick="saveToDrivePrompt()">📁 Save Result (Google)</button>
       <button class="btn-action btn-print" onclick="triggerPrint()">🖨️ Print Result</button>
     </div>
 
-    <!-- STATUS MESSAGE (MOVED DIRECTLY BELOW BUTTONS) -->
+    <!-- STATUS MESSAGE -->
     <div id="status" class="no-print"></div>
   </div>
 
@@ -402,6 +406,7 @@
       doc.close();
     }
 
+    // Fast Spreadsheet Save (No Drive processing)
     function saveData() {
       const select = document.getElementById("visitor-select");
       const colIndex = select.value;
@@ -431,60 +436,67 @@
         values[input.dataset.rowIndex] = input.value;
       });
 
-      showStatus("Saving data & archiving reports (Text + PDF) to Google Drive...", "loading");
+      showStatus("Saving data to spreadsheet...", "loading");
       document.getElementById("save-btn").disabled = true;
 
       fetchAPI({ 
         action: "saveVisitorData", 
         payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
       }, function(res) {
-        const updatedColIndex = res.data.colIndex || colIndex;
+        showStatus(res.data.message || res.message, "success");
+        document.getElementById("save-btn").disabled = false;
         
-        generateAndUploadPdf(updatedColIndex, function() {
-          showStatus(res.data.message || res.message, "success");
-          document.getElementById("save-btn").disabled = false;
-          
-          if (colIndex === "new") {
-            document.getElementById("visitor-search").value = "";
-            loadVisitorDropdown(); 
-          }
-        });
+        if (colIndex === "new") {
+          document.getElementById("visitor-search").value = "";
+          loadVisitorDropdown(); 
+        }
+        setTimeout(hideStatus, 3000);
       });
     }
 
-    function generateAndUploadPdf(colIndex, onComplete) {
-      let visitorSerial = "";
-      const snInput = document.getElementById("row_2");
-      if (snInput && snInput.value.trim() !== "") {
-        let rawSn = snInput.value.trim().replace(/^SN\s*/i, "");
-        if (!isNaN(rawSn) && rawSn !== "") {
-          visitorSerial = String(rawSn).padStart(3, '0');
-        }
+    // Protected Google Drive Archiving Button
+    function saveToDrivePrompt() {
+      const adminPwd = prompt("🔒 Enter Admin Password to save reports to Google Drive:");
+      if (adminPwd !== "ExpoAdmin2026") { // You can change this admin password as desired
+        if (adminPwd !== null) alert("Incorrect admin password.");
+        return;
       }
+      executeDriveSave();
+    }
+
+    function executeDriveSave() {
+      const select = document.getElementById("visitor-select");
+      const colIndex = select.value;
       
-      if (!visitorSerial) {
-        visitorSerial = String(colIndex).padStart(3, '0');
+      if (!colIndex || colIndex === "new") {
+        alert("Please select an existing saved visitor to archive reports to Drive.");
+        return;
       }
 
-      const visitorSelect = document.getElementById("visitor-select");
-      let selectedOptionText = "Visitor";
-      for (let i = 0; i < visitorSelect.options.length; i++) {
-        if (visitorSelect.options[i].value == colIndex) {
-          selectedOptionText = visitorSelect.options[i].text;
-          break;
-        }
+      const snInput = document.getElementById("row_2");
+      if (!snInput || snInput.value.trim() === "") {
+        alert("Serial Number is required for file naming.");
+        return;
       }
-      
+
+      let visitorSerial = String(snInput.value.trim().replace(/^SN\s*/i, "")).padStart(3, '0');
+      const visitorSelect = document.getElementById("visitor-select");
+      let selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex].text;
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
       const pdfFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`.replace(/_+/g, "_");
 
+      const values = {};
       document.querySelectorAll("#metrics-container input").forEach(input => {
+        values[input.dataset.rowIndex] = input.value;
         input.setAttribute('value', input.value);
       });
 
+      showStatus("Archiving reports (Text + PDF) to Google Drive...", "loading");
+      document.getElementById("drive-btn").disabled = true;
+
       const logoImg = document.querySelector('.brand-logo-img');
       
-      function sendHtmlToBackend(logoDataUrl) {
+      function sendDrivePayload(logoDataUrl) {
         const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">` : '';
 
         const htmlPayload = `
@@ -516,7 +528,7 @@
             <div class="print-header">
               <div class="brand-text-area">
                 <div class="print-main-title">MD Expo 2026 Health Data Report</div>
-                <div class="print-sub-line">Saved on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                <div class="print-sub-line">Archived on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
                 <div class="print-club-line">Back-To-Eden Wellness Club</div>
                 <div class="print-club-line">백투에덴 건강 동우회</div>
                 <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
@@ -531,10 +543,12 @@
         `;
 
         fetchAPI({
-          action: "savePrintPdf",
-          payload: { htmlContent: htmlPayload, filename: pdfFilename }
+          action: "saveDriveReports",
+          payload: { htmlContent: htmlPayload, filename: pdfFilename, sn: visitorSerial, name: cleanVisitorName, values: values }
         }, function(res) {
-          if (typeof onComplete === 'function') onComplete();
+          showStatus("✅ Reports successfully archived to Google Drive!", "success");
+          document.getElementById("drive-btn").disabled = false;
+          setTimeout(hideStatus, 4000);
         });
       }
 
@@ -545,12 +559,12 @@
           canvas.height = logoImg.naturalHeight;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(logoImg, 0, 0);
-          sendHtmlToBackend(canvas.toDataURL('image/png'));
+          sendDrivePayload(canvas.toDataURL('image/png'));
         } catch (e) {
-          sendHtmlToBackend('');
+          sendDrivePayload('');
         }
       } else {
-        sendHtmlToBackend('');
+        sendDrivePayload('');
       }
     }
 
@@ -714,11 +728,13 @@
         else {
           showStatus("Error: " + res.message, "error");
           document.getElementById("save-btn").disabled = false;
+          document.getElementById("drive-btn").disabled = false;
         }
       })
       .catch(err => {
         showStatus("Network Error: " + err.message, "error");
         document.getElementById("save-btn").disabled = false;
+        document.getElementById("drive-btn").disabled = false;
       });
     }
 
