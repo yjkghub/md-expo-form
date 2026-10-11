@@ -321,11 +321,7 @@
         margin-bottom: 3px;
       }
       .booth-section {
-        background: none !important;
-        border: none !important;
-        padding: 0 !important;
         margin-bottom: 2px;
-        box-shadow: none !important;
         page-break-inside: avoid;
       }
       .booth-header {
@@ -407,7 +403,7 @@
       <div class="print-club-line">백투에덴 건강 동우회</div>
       <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
     </div>
-    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+    <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
   </div>
 
   <!-- CONTROL PANEL -->
@@ -608,7 +604,8 @@
           labelRow.className = "label-row";
           
           const label = document.createElement("label");
-          label.innerText = `${metric.displayIndex} (${metric.name})` + (metric.device ? ` (${metric.device})` : "");
+          // Formatted as: 1 - Metric Name (Device)
+          label.innerText = `${metric.displayIndex} - ${metric.name}` + (metric.device ? ` (${metric.device})` : "");
           
           const badge = document.createElement("span");
           badge.className = "recorded-badge";
