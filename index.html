@@ -256,7 +256,7 @@
       <h3>MD Expo 2026 Portal</h3>
       <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
       <form onsubmit="event.preventDefault(); checkPassword();">
-        <input type="password" id="password-input" placeholder="Password" autofocus>
+        <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkPassword(); }" autofocus>
         <button type="submit">Access Portal</button>
       </form>
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
