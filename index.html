@@ -452,12 +452,12 @@
         
         const newColIndex = res.data.colIndex;
 
-        // Refresh dropdown and automatically select the newly saved visitor
+        // Refresh dropdown and then correctly select the newly saved visitor
         fetchAPI({ action: "getVisitorList" }, function(listRes) {
           allVisitors = listRes.data;
           populateDropdown(allVisitors);
           
-          // Select the newly saved record in the dropdown so Drive save works immediately
+          // Explicitly set the dropdown value to the new column index so it stays selected
           document.getElementById("visitor-select").value = newColIndex;
           document.getElementById("visitor-search").value = "";
         });
