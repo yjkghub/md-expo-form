@@ -317,11 +317,19 @@
       const visitorSelect = document.getElementById("visitor-select");
       const selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex] ? visitorSelect.options[visitorSelect.selectedIndex].text : "Visitor";
       
-      let rawSerial = visitorSelect.value && visitorSelect.value !== "new" ? visitorSelect.value : "0";
-      const paddedSerial = String(rawSerial).padStart(3, '0');
+      let visitorSerial = "000";
+      const snInput = document.getElementById("row_2");
+      if (snInput && snInput.value.trim() !== "") {
+        let rawSn = snInput.value.trim().replace(/^SN\s*/i, "");
+        if (!isNaN(rawSn) && rawSn !== "") {
+          visitorSerial = String(rawSn).padStart(3, '0');
+        }
+      } else if (visitorSelect.value && visitorSelect.value !== "new") {
+        visitorSerial = String(visitorSelect.value).padStart(3, '0');
+      }
       
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
-      const rawFilename = `${paddedSerial}_${cleanVisitorName}_MD_Expo_2026.pdf`;
+      const rawFilename = `${visitorSerial}_${cleanVisitorName}_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
       const existingIframe = document.getElementById('print-iframe');
@@ -409,14 +417,12 @@
       showStatus("Saving data & archiving reports (Text + PDF) to Google Drive...", "loading");
       document.getElementById("save-btn").disabled = true;
 
-      // 1. Save data to Spreadsheet AND create text file on Google Drive
       fetchAPI({ 
         action: "saveVisitorData", 
         payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
       }, function(res) {
         const updatedColIndex = res.data.colIndex || colIndex;
         
-        // 2. Automatically generate matching PDF report and upload to Google Drive
         generateAndUploadPdf(updatedColIndex, function() {
           showStatus(res.data.message || res.message, "success");
           document.getElementById("save-btn").disabled = false;
@@ -430,6 +436,17 @@
     }
 
     function generateAndUploadPdf(colIndex, onComplete) {
+      let visitorSerial = "000";
+      const snInput = document.getElementById("row_2");
+      if (snInput && snInput.value.trim() !== "") {
+        let rawSn = snInput.value.trim().replace(/^SN\s*/i, "");
+        if (!isNaN(rawSn) && rawSn !== "") {
+          visitorSerial = String(rawSn).padStart(3, '0');
+        }
+      } else {
+        visitorSerial = String(colIndex).padStart(3, '0');
+      }
+
       const visitorSelect = document.getElementById("visitor-select");
       let selectedOptionText = "Visitor";
       for (let i = 0; i < visitorSelect.options.length; i++) {
@@ -439,9 +456,8 @@
         }
       }
       
-      const paddedSerial = String(colIndex).padStart(3, '0');
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
-      const rawFilename = `${paddedSerial}_${cleanVisitorName}_MD_Expo_2026.pdf`;
+      const rawFilename = `${visitorSerial}_${cleanVisitorName}_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
       document.querySelectorAll("#metrics-container input").forEach(input => {
@@ -453,7 +469,6 @@
       function sendHtmlToBackend(logoDataUrl) {
         const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">` : '';
 
-        // Exact same narrow 4mm margin and two-column grid styling as local print
         const htmlPayload = `
           <!DOCTYPE html>
           <html>
