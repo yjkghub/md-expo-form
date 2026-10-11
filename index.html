@@ -329,7 +329,7 @@
       }
       
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
-      const rawFilename = `${visitorSerial}_${cleanVisitorName}_2026_Health_Report.pdf`;
+      const rawFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
       const existingIframe = document.getElementById('print-iframe');
@@ -457,7 +457,7 @@
       }
       
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
-      const rawFilename = `${visitorSerial}_${cleanVisitorName}_2026_Health_Report.pdf`;
+      const rawFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
       document.querySelectorAll("#metrics-container input").forEach(input => {
@@ -615,6 +615,7 @@
         const grid = document.createElement("div");
         grid.className = "booth-grid";
         
+        metrics.exports = metrics.forEach || [];
         metrics.forEach(metric => {
           const div = document.createElement("div");
           div.className = "form-group";
