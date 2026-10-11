@@ -435,6 +435,10 @@
         return;
       }
 
+      const rawSn = snInput.value.trim().replace(/^SN\s*/i, "");
+      const paddedSn = !isNaN(rawSn) && rawSn !== "" ? String(rawSn).padStart(3, '0') : rawSn;
+      const visitorName = nameInput.value.trim();
+
       const values = {};
       document.querySelectorAll("#metrics-container input").forEach(input => {
         values[input.dataset.rowIndex] = input.value;
@@ -445,21 +449,33 @@
 
       fetchAPI({ 
         action: "saveVisitorData", 
-        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
+        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: visitorName, values: values } 
       }, function(res) {
         showStatus(res.data.message || res.message, "success");
         document.getElementById("save-btn").disabled = false;
         
         const newColIndex = res.data.colIndex;
+        const displayLabel = `${visitorName} - ${paddedSn}`;
 
-        // Refresh dropdown and then correctly select the newly saved visitor
+        // Instantly update dropdown locally so user can click Drive or Print immediately
+        let existingOpt = select.querySelector(`option[value="${newColIndex}"]`);
+        if (existingOpt) {
+          existingOpt.text = displayLabel;
+        } else {
+          let opt = document.createElement("option");
+          opt.value = newColIndex;
+          opt.text = displayLabel;
+          select.appendChild(opt);
+        }
+
+        select.value = newColIndex;
+        document.getElementById("visitor-search").value = "";
+
+        // Background sync
         fetchAPI({ action: "getVisitorList" }, function(listRes) {
           allVisitors = listRes.data;
           populateDropdown(allVisitors);
-          
-          // Explicitly set the dropdown value to the new column index so it stays selected
-          document.getElementById("visitor-select").value = newColIndex;
-          document.getElementById("visitor-search").value = "";
+          select.value = newColIndex;
         });
 
         setTimeout(hideStatus, 3000);
