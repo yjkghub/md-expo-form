@@ -1,17 +1,169 @@
-html2pdf().from(printContainer).set({
-        margin: 10,
-        filename: pdfFilename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).outputPdf('datauristring').then(function(pdfDataUri) {
-        var base64Data = pdfDataUri.split(',')[1];
-        
-        // Send via fetchAPI instead of google.script.run
-        fetchAPI({
-          action: "savePrintPdf",
-          payload: { base64Data: base64Data, filename: pdfFilename }
-        }, function(res) {
-          console.log("PDF successfully saved to Google Drive!");
-        });
-      });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Expo 2026 - Health Data Form</title>
+  <!-- HTML2PDF.js Library for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    /* PASSWORD PROTECTION OVERLAY */
+    #auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .auth-box {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 350px;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .auth-box h3 {
+      margin-top: 0;
+      color: #1a5276;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .auth-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1a5276;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .auth-box button:hover { background-color: #154360; }
+    .auth-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+    
+    /* TOP BRANDING & LOGO SECTION (SCREEN) */
+    .top-brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      border-top: 4px solid #1a5276;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .brand-text-area {
+      text-align: center;
+      flex: 1;
+    }
+    .brand-korean {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #1a5276;
+    }
+    .brand-english {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #1a5276;
+      letter-spacing: 0.5px;
+    }
+    .brand-sub {
+      font-size: 8.5pt;
+      color: #555;
+    }
+    .brand-logo-img {
+      max-height: 50px;
+      width: auto;
+      margin-left: 15px;
+      flex-shrink: 0;
+    }
+    
+    .main-heading {
+      text-align: center;
+      color: #1a5276;
+      font-size: 22pt;
+      font-weight: bold;
+      margin: 15px 0 25px 0;
+    }
+
+    /* SEARCH & CONTROLS BOX */
+    .header-controls {
+      background: #ebf5fb;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #aed6f1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+    }
+    .control-label {
+      font-weight: bold;
+      color: #1a5276;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 14px;
+    }
+    .search-input-box, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #aed6f1;
+      border-radius: 6px;
+      background: #ffffff;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    .button-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    /* COLORED BUTTONS */
+    .btn-action {
+      flex: 1;
+      padding: 14px 20px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+    .btn-save { background-color: #2980b9; }
+    .btn-save:hover { background-color: #1a5276; }
+    
+    .btn-print { background-color: #27ae60; }
+    .btn-print:hover { background-color: #1e8449; }
+    button:disabled { background-color: #cbd5e0 !important; cursor: not-allowed; }
+
+    /* SINGLE COLUMN SCREEN VIEW */
+    #metrics-container {
+      display: flex;
