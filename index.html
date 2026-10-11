@@ -233,11 +233,12 @@
 
     #status {
       margin-top: 15px;
-      padding: 15px;
+      padding: 12px 15px;
       border-radius: 8px;
       font-weight: bold;
       white-space: pre-wrap; 
       display: none;
+      font-size: 14px;
     }
     .status-success { background: #d4efdf; color: #145a32; border: 1px solid #a9dfbf; }
     .status-error { background: #fadbd8; color: #78281f; border: 1px solid #f5b7b1; }
@@ -284,15 +285,16 @@
     </select>
     
     <div class="button-container">
-      <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Retrieve / Save / Update Measurements</button>
+      <button class="btn-action btn-save" id="save-btn" onclick="saveData()">Save / Update Measurements</button>
       <button class="btn-action btn-print" onclick="triggerPrint()">🖨️ Print Result</button>
     </div>
+
+    <!-- STATUS MESSAGE (MOVED DIRECTLY BELOW BUTTONS) -->
+    <div id="status" class="no-print"></div>
   </div>
 
   <!-- METRICS CONTAINER -->
   <div id="metrics-container"></div>
-  
-  <div id="status" class="no-print"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
@@ -409,7 +411,6 @@
         return;
       }
 
-      // SAFETY CHECK: Ensure Serial Number (Row 2) and Name (Row 3) are provided before saving
       const snInput = document.getElementById("row_2");
       const nameInput = document.getElementById("row_3");
 
