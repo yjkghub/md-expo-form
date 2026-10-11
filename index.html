@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD Expo 2026 - Health Data Form</title>
-  <!-- HTML2PDF.js Library for PDF generation -->
+  <!-- HTML2PDF.js Library for PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
@@ -378,10 +378,8 @@
     <div class="auth-box">
       <h3>MD Expo 2026 Portal</h3>
       <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
-      <form onsubmit="event.preventDefault(); checkPassword();">
-        <input type="password" id="password-input" placeholder="Password" autofocus>
-        <button type="submit">Access Portal</button>
-      </form>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Portal</button>
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
     </div>
   </div>
@@ -436,6 +434,16 @@
     let formStructure = [];
     let allVisitors = [];
 
+    function checkPassword() {
+      const pwd = document.getElementById("password-input").value;
+      if (pwd === "Expo2026") {
+        document.getElementById("auth-overlay").style.display = "none";
+        initApp();
+      } else {
+        document.getElementById("auth-error").style.display = "block";
+      }
+    }
+
     function triggerPrint() {
       // Sync input values into attributes so they render in the iframe print document
       document.querySelectorAll("#metrics-container input").forEach(input => {
@@ -449,7 +457,7 @@
       const cleanVisitorName = selectedOptionText.replace(/[^a-zA-Z0-9가-힣]/g, "_");
       const pdfFilename = serialNumber + "_" + cleanVisitorName + "_MD_Expo_2026.pdf";
 
-      // 1. Automatically generate PDF and send to Google Drive folder via Apps Script
+      // 1. Automatically generate PDF and send to Google Drive folder via fetchAPI
       const printContainer = document.createElement('div');
       printContainer.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
       printContainer.style.background = "white";
@@ -457,6 +465,9 @@
       printContainer.style.color = "#000";
       printContainer.style.fontSize = "12pt";
       printContainer.style.width = "750px";
+      printContainer.style.position = "fixed";
+      printContainer.style.left = "-9999px";
+      printContainer.style.top = "0";
 
       printContainer.innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px;">
@@ -477,6 +488,9 @@
         if (originalInputs[idx]) inp.value = originalInputs[idx].value;
       });
 
+      // Append temporarily to body so html2canvas can compute layout and render
+      document.body.appendChild(printContainer);
+
       html2pdf().from(printContainer).set({
         margin: 10,
         filename: pdfFilename,
@@ -484,15 +498,20 @@
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).outputPdf('datauristring').then(function(pdfDataUri) {
+        printContainer.remove(); // Clean up DOM element
+
         var base64Data = pdfDataUri.split(',')[1];
-        google.script.run
-          .withSuccessHandler(function(url) {
-            console.log("PDF successfully saved to Google Drive: " + url);
-          })
-          .withFailureHandler(function(err) {
-            console.error("Drive PDF save failed: " + err.message);
-          })
-          .savePrintPdfToDrive(base64Data, pdfFilename);
+        
+        // Send via fetchAPI to Google Apps Script backend
+        fetchAPI({
+          action: "savePrintPdf",
+          payload: { base64Data: base64Data, filename: pdfFilename }
+        }, function(res) {
+          console.log("PDF successfully saved to Google Drive!");
+        });
+      }).catch(err => {
+        printContainer.remove();
+        console.error("PDF Generation Error: ", err);
       });
 
       // 2. Remove any existing print iframe
@@ -563,16 +582,6 @@
         </html>
       `);
       doc.close();
-    }
-
-    function checkPassword() {
-      const pwd = document.getElementById("password-input").value;
-      if (pwd === "Expo2026") {
-        document.getElementById("auth-overlay").style.display = "none";
-        initApp();
-      } else {
-        document.getElementById("auth-error").style.display = "block";
-      }
     }
 
     function initApp() {
