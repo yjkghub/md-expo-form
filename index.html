@@ -437,11 +437,78 @@
     let allVisitors = [];
 
     function triggerPrint() {
-      try {
-        window.print();
-      } catch (e) {
-        alert("To print or save as PDF on mobile, please tap your browser's menu (three dots) and select 'Share' or 'Print'.");
-      }
+      // Sync input values into attributes so they render in the iframe print document
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        input.setAttribute('value', input.value);
+      });
+
+      // Remove any existing print iframe
+      const existingIframe = document.getElementById('print-iframe');
+      if (existingIframe) existingIframe.remove();
+
+      // Create hidden iframe for bulletproof mobile/Android rendering
+      const iframe = document.createElement('iframe');
+      iframe.id = 'print-iframe';
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>MD Expo 2026 - Health Data Report</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 0; margin: 0; color: #000; font-size: 12pt; }
+            @page { size: letter portrait; margin: 4mm; }
+            .print-header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
+            .brand-text-area { text-align: center; width: 100%; }
+            .print-main-title { font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0; }
+            .print-sub-line { font-size: 9.5pt; color: #333; margin-top: 1px; line-height: 1.0; }
+            .print-club-line { font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px; line-height: 1.0; }
+            .print-email-line { font-size: 9pt; color: #555; margin-top: 1px; line-height: 1.0; }
+            .print-logo-img { max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end; }
+            #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
+            .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
+            .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
+            .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
+            .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+            .label-row { margin-bottom: 0; width: 63%; }
+            .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
+            .form-group input { border: none !important; background: transparent !important; text-align: right; font-weight: bold; font-size: 12.5pt; width: 35% !important; padding: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div class="brand-text-area">
+              <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+              <div class="print-sub-line">Printed on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+              <div class="print-club-line">Back-To-Eden Wellness Club</div>
+              <div class="print-club-line">백투에덴 건강 동우회</div>
+              <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
+            </div>
+            <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="print-logo-img" onerror="this.style.display='none'">
+          </div>
+          <div id="metrics-container">
+            ${document.getElementById('metrics-container').innerHTML}
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 350);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      doc.close();
     }
 
     function checkPassword() {
@@ -455,8 +522,6 @@
     }
 
     function initApp() {
-      document.getElementById("print-date").innerText = "Printed on: " + new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-
       showStatus("Loading system...", "loading");
       fetchAPI({ action: "getFormStructure" }, function(res) {
         formStructure = res.data;
