@@ -52,7 +52,7 @@
     }
     .auth-box button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background-color: #1a5276;
       color: white;
       border: none;
@@ -376,8 +376,8 @@
     <div class="auth-box">
       <h3>MD Expo 2026 Portal</h3>
       <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Please enter the password to access.</p>
-      <input type="password" id="password-input" placeholder="Password">
-      <button id="auth-btn">Access Portal</button>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key === 'Enter') checkPassword()">
+      <button onclick="checkPassword()">Access Portal</button>
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
     </div>
   </div>
@@ -432,46 +432,17 @@
     let formStructure = [];
     let allVisitors = [];
 
-    // ROBUST EVENT BINDING FOR TOUCH AND CLICK (ANDROID COMPATIBLE)
-    document.addEventListener("DOMContentLoaded", function() {
-      const authBtn = document.getElementById("auth-btn");
-      const passwordInput = document.getElementById("password-input");
-
-      if (authBtn) {
-        authBtn.addEventListener("click", checkPassword);
-        authBtn.addEventListener("touchend", function(e) {
-          e.preventDefault();
-          checkPassword();
-        });
-      }
-
-      if (passwordInput) {
-        passwordInput.addEventListener("keydown", function(event) {
-          if (event.key === "Enter") {
-            checkPassword();
-          }
-        });
-      }
-    });
-
-    function checkPassword() {
-      const pwd = document.getElementById("password-input").value;
-      if (pwd === "Expo2026") {
-        document.getElementById("auth-overlay").style.display = "none";
-        initApp();
-      } else {
-        document.getElementById("auth-error").style.display = "block";
-      }
-    }
-
     function triggerPrint() {
+      // Sync input values into attributes so they render in the iframe print document
       document.querySelectorAll("#metrics-container input").forEach(input => {
         input.setAttribute('value', input.value);
       });
 
+      // Remove any existing print iframe
       const existingIframe = document.getElementById('print-iframe');
       if (existingIframe) existingIframe.remove();
 
+      // Create hidden iframe for bulletproof mobile/Android rendering
       const iframe = document.createElement('iframe');
       iframe.id = 'print-iframe';
       iframe.style.position = 'fixed';
@@ -535,6 +506,16 @@
         </html>
       `);
       doc.close();
+    }
+
+    function checkPassword() {
+      const pwd = document.getElementById("password-input").value;
+      if (pwd === "Expo2026") {
+        document.getElementById("auth-overlay").style.display = "none";
+        initApp();
+      } else {
+        document.getElementById("auth-error").style.display = "block";
+      }
     }
 
     function initApp() {
@@ -624,6 +605,7 @@
           labelRow.className = "label-row";
           
           const label = document.createElement("label");
+          // Formatted as: 1 - Metric Name (Device)
           label.innerText = `${metric.displayIndex} - ${metric.name}` + (metric.device ? ` (${metric.device})` : "");
           
           const badge = document.createElement("span");
