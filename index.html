@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD Expo 2026 - Health Data Form</title>
-  <!-- HTML2PDF.js Library for PDF Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -311,7 +309,6 @@
       }
     }
 
-    // Local physical print trigger
     function triggerPrint() {
       document.querySelectorAll("#metrics-container input").forEach(input => {
         input.setAttribute('value', input.value);
@@ -395,7 +392,6 @@
       doc.close();
     }
 
-    // Automatic background save for Spreadsheet + Text file + PDF Archive
     function saveData() {
       const select = document.getElementById("visitor-select");
       const colIndex = select.value;
@@ -413,14 +409,12 @@
       showStatus("Saving data & archiving reports to Google Drive...", "loading");
       document.getElementById("save-btn").disabled = true;
 
-      // 1. Save data to Spreadsheet and generate Text report on Drive
       fetchAPI({ 
         action: "saveVisitorData", 
         payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: "", values: values } 
       }, function(res) {
         const updatedColIndex = res.data.colIndex || colIndex;
         
-        // 2. Automatically generate formatted PDF in background and upload to Drive
         generateAndUploadPdf(updatedColIndex, function() {
           showStatus(res.data.message || res.message, "success");
           document.getElementById("save-btn").disabled = false;
@@ -448,87 +442,78 @@
       const rawFilename = `${paddedSerial}_${cleanVisitorName}_MD_Expo_2026.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
 
-      const printContainer = document.createElement('div');
-      printContainer.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-      printContainer.style.background = "white";
-      printContainer.style.padding = "10px";
-      printContainer.style.color = "#000";
-      printContainer.style.fontSize = "12pt";
-      printContainer.style.width = "750px";
-      printContainer.style.position = "fixed";
-      printContainer.style.left = "-9999px";
-      printContainer.style.top = "0";
-
-      const liveInputs = document.querySelectorAll('#metrics-container input');
-      const inputValuesMap = {};
-      liveInputs.forEach(inp => {
-        inputValuesMap[inp.id] = inp.value;
+      document.querySelectorAll("#metrics-container input").forEach(input => {
+        input.setAttribute('value', input.value);
       });
-
-      const clonedMetrics = document.getElementById('metrics-container').cloneNode(true);
-      clonedMetrics.querySelectorAll('input').forEach(input => {
-        const val = inputValuesMap[input.id] || "";
-        const span = document.createElement('span');
-        span.style.fontWeight = "bold";
-        span.style.fontSize = "12.5pt";
-        span.style.textAlign = "right";
-        span.style.display = "inline-block";
-        span.innerText = val;
-        input.parentNode.replaceChild(span, input);
-      });
-      clonedMetrics.querySelectorAll('.recorded-badge').forEach(badge => badge.remove());
 
       const logoImg = document.querySelector('.brand-logo-img');
-      const logoSrc = logoImg && logoImg.src ? logoImg.src : '';
+      
+      function sendHtmlToBackend(logoDataUrl) {
+        const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; object-fit: contain; justify-self: end;">` : '';
 
-      printContainer.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%;">
-          <div style="text-align: center; width: 100%;">
-            <div style="font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0;">MD Expo 2026 Health Data Report</div>
-            <div style="font-size: 9.5pt; color: #333; margin-top: 1px;">Saved on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
-            <div style="font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px;">Back-To-Eden Wellness Club | 백투에덴 건강 동우회</div>
-            <div style="font-size: 9pt; color: #555; margin-top: 1px;">b2e.wsk.church | b2ewellness@gmail.com</div>
-          </div>
-          ${logoSrc ? `<img src="${logoSrc}" style="max-height: 40px; max-width: 100px; object-fit: contain;">` : ''}
-        </div>
-      `;
-      printContainer.appendChild(clonedMetrics);
-
-      const styleTag = document.createElement('style');
-      styleTag.innerHTML = `
-        #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
-        .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
-        .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
-        .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
-        .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
-        .label-row { margin-bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
-      `;
-      printContainer.appendChild(styleTag);
-
-      document.body.appendChild(printContainer);
-
-      html2pdf().from(printContainer).set({
-        margin: 10,
-        filename: pdfFilename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).outputPdf('datauristring').then(function(pdfDataUri) {
-        printContainer.remove();
-        const base64Data = pdfDataUri.split(',')[1];
+        const htmlPayload = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; padding: 10px; margin: 0; color: #000; font-size: 12pt; }
+              .print-header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; border-bottom: 2px solid #1a5276; padding-bottom: 5px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
+              .brand-text-area { text-align: center; width: 100%; }
+              .print-main-title { font-size: 16pt; font-weight: bold; color: #1a5276; line-height: 1.0; }
+              .print-sub-line { font-size: 9.5pt; color: #333; margin-top: 1px; line-height: 1.0; }
+              .print-club-line { font-size: 9.5pt; font-weight: bold; color: #1a5276; margin-top: 1px; line-height: 1.0; }
+              .print-email-line { font-size: 9pt; color: #555; margin-top: 1px; line-height: 1.0; }
+              #metrics-container { display: flex; flex-direction: column; gap: 2px; margin-bottom: 3px; }
+              .booth-section { margin-bottom: 2px; page-break-inside: avoid; }
+              .booth-header { font-size: 11.5pt; font-weight: bold; color: #1a5276 !important; border-bottom: 1px solid #1a5276; padding-bottom: 1px; margin-bottom: 1px; margin-top: 1px; }
+              .booth-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px 8px !important; }
+              .form-group { border-bottom: 1px dotted #ccc !important; padding: 1px 0 !important; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+              .label-row { margin-bottom: 0; width: 100%; }
+              .form-group label { font-size: 11.5pt; font-weight: normal; color: #000; line-height: 1.0; }
+              .form-group input { border: none !important; background: transparent !important; text-align: right; font-weight: bold; font-size: 12.5pt; width: 35% !important; padding: 0; }
+              .recorded-badge { display: none !important; }
+            </style>
+          </head>
+          <body>
+            <div class="print-header">
+              <div class="brand-text-area">
+                <div class="print-main-title">MD Expo 2026 Health Data Report</div>
+                <div class="print-sub-line">Saved on: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                <div class="print-club-line">Back-To-Eden Wellness Club | 백투에덴 건강 동우회</div>
+                <div class="print-email-line">b2e.wsk.church | b2ewellness@gmail.com</div>
+              </div>
+              ${logoHtmlTag}
+            </div>
+            <div id="metrics-container">
+              ${document.getElementById('metrics-container').innerHTML}
+            </div>
+          </body>
+          </html>
+        `;
 
         fetchAPI({
           action: "savePrintPdf",
-          payload: { base64Data: base64Data, filename: pdfFilename }
+          payload: { htmlContent: htmlPayload, filename: pdfFilename }
         }, function(res) {
           if (typeof onComplete === 'function') onComplete();
         });
-      }).catch(err => {
-        printContainer.remove();
-        console.error("Background PDF Generation Error: ", err);
-        if (typeof onComplete === 'function') onComplete();
-      });
+      }
+
+      if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = logoImg.naturalWidth;
+          canvas.height = logoImg.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(logoImg, 0, 0);
+          sendHtmlToBackend(canvas.toDataURL('image/png'));
+        } catch (e) {
+          sendHtmlToBackend('');
+        }
+      } else {
+        sendHtmlToBackend('');
+      }
     }
 
     function initApp() {
