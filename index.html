@@ -13,7 +13,6 @@
       background-color: #f8f9fa;
       color: #333;
     }
-
     /* PASSWORD PROTECTION OVERLAY */
     #auth-overlay {
       position: fixed;
@@ -109,7 +108,6 @@
       font-weight: bold;
       margin: 15px 0 25px 0;
     }
-
     /* SEARCH & CONTROLS BOX */
     .header-controls {
       background: #ebf5fb;
@@ -157,14 +155,12 @@
     }
     .btn-save { background-color: #2980b9; }
     .btn-save:hover { background-color: #1a5276; }
-
     .btn-drive { background-color: #8e44ad; }
     .btn-drive:hover { background-color: #7d3c98; }
     
     .btn-print { background-color: #27ae60; }
     .btn-print:hover { background-color: #1e8449; }
     button:disabled { background-color: #cbd5e0 !important; cursor: not-allowed; }
-
     /* SINGLE COLUMN SCREEN VIEW */
     #metrics-container {
       display: flex;
@@ -233,7 +229,6 @@
       border-color: #2980b9;
       background: #fff;
     }
-
     #status {
       margin-top: 15px;
       padding: 12px 15px;
@@ -246,12 +241,10 @@
     .status-success { background: #d4efdf; color: #145a32; border: 1px solid #a9dfbf; }
     .status-error { background: #fadbd8; color: #78281f; border: 1px solid #f5b7b1; }
     .status-loading { background: #ebf5fb; color: #1a5276; border: 1px solid #aed6f1; }
-
     .print-only { display: none; }
   </style>
 </head>
 <body>
-
   <!-- PASSWORD PROTECTION OVERLAY -->
   <div id="auth-overlay">
     <div class="auth-box">
@@ -264,7 +257,6 @@
       <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
     </div>
   </div>
-
   <!-- TOP BRANDING HEADER (SCREEN) -->
   <div class="top-brand-header no-print">
     <div class="brand-text-area">
@@ -274,9 +266,7 @@
     </div>
     <img src="WSK B2E Club_Banner_R2t.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
   </div>
-
   <h2 class="main-heading">MD Expo 2026 Health Data Entry Form</h2>
-
   <!-- CONTROL PANEL -->
   <div class="header-controls no-print">
     <label class="control-label">Search or Select Visitor</label>
@@ -292,14 +282,11 @@
       <button class="btn-action btn-drive" id="drive-btn" onclick="saveToDrivePrompt()">📁 Save Result (Google)</button>
       <button class="btn-action btn-print" onclick="triggerPrint()">🖨️ Print Result</button>
     </div>
-
     <!-- STATUS MESSAGE -->
     <div id="status" class="no-print"></div>
   </div>
-
   <!-- METRICS CONTAINER -->
   <div id="metrics-container"></div>
-
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
@@ -319,7 +306,6 @@
       document.querySelectorAll("#metrics-container input").forEach(input => {
         input.setAttribute('value', input.value);
       });
-
       const visitorSelect = document.getElementById("visitor-select");
       const selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex] ? visitorSelect.options[visitorSelect.selectedIndex].text : "Visitor";
       
@@ -337,7 +323,6 @@
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
       const rawFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`;
       const pdfFilename = rawFilename.replace(/_+/g, "_");
-
       const logoImg = document.querySelector('.brand-logo-img');
       let logoHtmlTag = '';
       if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
@@ -350,13 +335,11 @@
           logoHtmlTag = `<img src="${canvas.toDataURL('image/png')}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">`;
         } catch (e) {}
       }
-
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         alert("Popup blocked! Please allow popups for this site to print.");
         return;
       }
-
       printWindow.document.open();
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -419,34 +402,27 @@
         alert("Please select a visitor or choose '+ Add New Visitor' from the dropdown.");
         return;
       }
-
       const snInput = document.getElementById("row_2");
       const nameInput = document.getElementById("row_3");
-
       if (!snInput || snInput.value.trim() === "") {
         alert("Safety Check: Serial Number cannot be empty!");
         if (snInput) snInput.focus();
         return;
       }
-
       if (!nameInput || nameInput.value.trim() === "") {
         alert("Safety Check: Visitor Name cannot be empty!");
         if (nameInput) nameInput.focus();
         return;
       }
-
       const rawSn = snInput.value.trim().replace(/^SN\s*/i, "");
       const paddedSn = !isNaN(rawSn) && rawSn !== "" ? String(rawSn).padStart(3, '0') : rawSn;
       const visitorName = nameInput.value.trim();
-
       const values = {};
       document.querySelectorAll("#metrics-container input").forEach(input => {
         values[input.dataset.rowIndex] = input.value;
       });
-
       showStatus("Saving data to spreadsheet...", "loading");
       document.getElementById("save-btn").disabled = true;
-
       fetchAPI({ 
         action: "saveVisitorData", 
         payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: visitorName, values: values } 
@@ -456,8 +432,7 @@
         
         const newColIndex = res.data.colIndex;
         const displayLabel = `${visitorName} - ${paddedSn}`;
-
-        // Instantly update dropdown locally so user can click Drive or Print immediately
+        
         let existingOpt = select.querySelector(`option[value="${newColIndex}"]`);
         if (existingOpt) {
           existingOpt.text = displayLabel;
@@ -467,17 +442,14 @@
           opt.text = displayLabel;
           select.appendChild(opt);
         }
-
         select.value = newColIndex;
         document.getElementById("visitor-search").value = "";
-
-        // Background sync
+        
         fetchAPI({ action: "getVisitorList" }, function(listRes) {
           allVisitors = listRes.data;
           populateDropdown(allVisitors);
           select.value = newColIndex;
         });
-
         setTimeout(hideStatus, 3000);
       });
     }
@@ -499,33 +471,27 @@
         alert("Please select an existing saved visitor to archive reports to Drive.");
         return;
       }
-
       const snInput = document.getElementById("row_2");
       if (!snInput || snInput.value.trim() === "") {
         alert("Serial Number is required for file naming.");
         return;
       }
-
       let visitorSerial = String(snInput.value.trim().replace(/^SN\s*/i, "")).padStart(3, '0');
       const visitorSelect = document.getElementById("visitor-select");
       let selectedOptionText = visitorSelect.options[visitorSelect.selectedIndex].text;
       const cleanVisitorName = selectedOptionText.split('-')[0].trim().replace(/[^a-zA-Z0-9가-힣]/g, "_");
       const pdfFilename = `${visitorSerial}_${cleanVisitorName}_MD_Expo_2026_Health_Report.pdf`.replace(/_+/g, "_");
-
       const values = {};
       document.querySelectorAll("#metrics-container input").forEach(input => {
         values[input.dataset.rowIndex] = input.value;
         input.setAttribute('value', input.value);
       });
-
       showStatus("Archiving reports (Text + PDF) to Google Drive...", "loading");
       document.getElementById("drive-btn").disabled = true;
-
       const logoImg = document.querySelector('.brand-logo-img');
       
       function sendDrivePayload(logoDataUrl) {
         const logoHtmlTag = logoDataUrl ? `<img src="${logoDataUrl}" style="max-height: 40px; max-width: 100px; width: auto; height: auto; object-fit: contain; justify-self: end;">` : '';
-
         const htmlPayload = `
           <!DOCTYPE html>
           <html>
@@ -568,7 +534,6 @@
           </body>
           </html>
         `;
-
         fetchAPI({
           action: "saveDriveReports",
           payload: { htmlContent: htmlPayload, filename: pdfFilename, sn: visitorSerial, name: cleanVisitorName, values: values }
@@ -578,7 +543,6 @@
           setTimeout(hideStatus, 4000);
         });
       }
-
       if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
         try {
           const canvas = document.createElement('canvas');
@@ -636,15 +600,8 @@
       const select = document.getElementById("visitor-select");
       if (select.value === "new") {
         clearForm();
-        fetchAPI({ action: "getNextAvailableSerial" }, function(res) {
-          const snInput = document.getElementById("row_2");
-          if (snInput) {
-            snInput.value = res.data;
-            snInput.dispatchEvent(new Event('input'));
-          }
-          const nameInput = document.getElementById("row_3");
-          if (nameInput) nameInput.focus();
-        });
+        const snInput = document.getElementById("row_2");
+        if (snInput) snInput.focus();
       } else {
         if (select.value) loadVisitorData();
       }
@@ -656,7 +613,6 @@
       
       const groups = {};
       let lastBooth = "General Information";
-
       formStructure.forEach((metric, index) => {
         let displayIdx = index + 1;
         
@@ -668,7 +624,6 @@
         if (!groups[lastBooth]) groups[lastBooth] = [];
         groups[lastBooth].push({ ...metric, displayIndex: displayIdx });
       });
-
       for (const [booth, metrics] of Object.entries(groups)) {
         const section = document.createElement("div");
         section.className = "booth-section";
@@ -677,7 +632,6 @@
         header.className = "booth-header";
         header.innerText = booth;
         section.appendChild(header);
-
         const grid = document.createElement("div");
         grid.className = "booth-grid";
         
@@ -734,7 +688,6 @@
     function loadVisitorData() {
       const colIndex = document.getElementById("visitor-select").value;
       if (!colIndex || colIndex === "new") return;
-
       showStatus("Loading visitor data...", "loading");
       fetchAPI({ action: "getVisitorData", payload: { colIndex: colIndex } }, function(res) {
         clearForm();
