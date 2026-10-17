@@ -291,6 +291,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbx66M9xr7kryCW1h_ibwNn2nG_9BG9DyNbEivaWjPOR6eVbgWOfaoQBevuXoIynlIwH/exec"; 
     let formStructure = [];
     let allVisitors = [];
+    let currentVisitorTimestamp = ""; // Tracks the load-time version of the visitor
 
     function checkPassword() {
       const pwd = document.getElementById("password-input").value;
@@ -423,13 +424,22 @@
       });
       showStatus("Saving data to spreadsheet...", "loading");
       document.getElementById("save-btn").disabled = true;
+
       fetchAPI({ 
         action: "saveVisitorData", 
-        payload: { colIndex: colIndex === "new" ? "new" : colIndex, visitorName: visitorName, values: values } 
+        payload: { 
+          colIndex: colIndex === "new" ? "new" : colIndex, 
+          visitorName: visitorName, 
+          values: values,
+          clientTimestamp: currentVisitorTimestamp 
+        } 
       }, function(res) {
         showStatus(res.data.message || res.message, "success");
         document.getElementById("save-btn").disabled = false;
         
+        // Update local tracking timestamp
+        currentVisitorTimestamp = res.data.timestamp;
+
         const newColIndex = res.data.colIndex;
         const displayLabel = `${visitorName} - ${paddedSn}`;
         
@@ -600,6 +610,7 @@
       const select = document.getElementById("visitor-select");
       if (select.value === "new") {
         clearForm();
+        currentVisitorTimestamp = ""; // Reset for new entry
         const snInput = document.getElementById("row_2");
         if (snInput) snInput.focus();
       } else {
@@ -691,6 +702,11 @@
       showStatus("Loading visitor data...", "loading");
       fetchAPI({ action: "getVisitorData", payload: { colIndex: colIndex } }, function(res) {
         clearForm();
+        
+        // Extract version timestamp and clean up data object
+        currentVisitorTimestamp = res.data._timestamp || "";
+        delete res.data._timestamp;
+
         for (let rowIndex in res.data) {
           let input = document.getElementById("row_" + rowIndex);
           if (input) {
@@ -711,8 +727,9 @@
       })
       .then(response => response.json())
       .then(res => {
-        if (res.status === "success") onSuccess(res);
-        else {
+        if (res.status === "success") {
+          onSuccess(res);
+        } else {
           showStatus("Error: " + res.message, "error");
           document.getElementById("save-btn").disabled = false;
           document.getElementById("drive-btn").disabled = false;
